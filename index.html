@@ -291,168 +291,99 @@
 
   <div class="caption">← → to navigate · click dots to jump</div>
 
-  <!-- html2canvas (required by liquidGL) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="scripts/liquidGL.js"></script>
+<script>
+  const presets = [
+    {
+      label: "Default", sub: "Balanced refraction + bevel", icon: "✦",
+      options: { refraction: 0, bevelDepth: 0.052, bevelWidth: 0.211, frost: 2, shadow: true, specular: true },
+    },
+    {
+      label: "Alien", sub: "Sci-fi deep bevel", icon: "⬡",
+      options: { refraction: 0.073, bevelDepth: 0.2, bevelWidth: 0.156, frost: 2, shadow: true, specular: false },
+    },
+    {
+      label: "Pulse", sub: "Flat pane with wide bevel", icon: "◉",
+      options: { refraction: 0.03, bevelDepth: 0, bevelWidth: 0.273, frost: 0, shadow: false, specular: false },
+    },
+    {
+      label: "Frost", sub: "Privacy-glass soft blur", icon: "❄",
+      options: { refraction: 0, bevelDepth: 0.035, bevelWidth: 0.119, frost: 0.9, shadow: true, specular: true },
+    },
+    {
+      label: "Edge", sub: "Thin bevel + rim highlights", icon: "◈",
+      options: { refraction: 0.047, bevelDepth: 0.136, bevelWidth: 0.076, frost: 2, shadow: true, specular: false },
+    },
+  ];
 
-  <!-- liquidGL from jsDelivr CDN -->
-  <script src="scripts/liquidGL.js"></script>
+  let current = 0;
+  let glassEffect = null;
+  let animating = false;
 
-  <script>
-    /* ── Presets ── */
-    const presets = [
-      {
-        label: "Default",
-        sub: "Balanced refraction + bevel",
-        icon: "✦",
-        options: {
-          refraction: 0,
-          bevelDepth: 0.052,
-          bevelWidth: 0.211,
-          frost: 2,
-          shadow: true,
-          specular: true,
-        },
-      },
-      {
-        label: "Alien",
-        sub: "Sci-fi deep bevel",
-        icon: "⬡",
-        options: {
-          refraction: 0.073,
-          bevelDepth: 0.2,
-          bevelWidth: 0.156,
-          frost: 2,
-          shadow: true,
-          specular: false,
-        },
-      },
-      {
-        label: "Pulse",
-        sub: "Flat pane with wide bevel",
-        icon: "◉",
-        options: {
-          refraction: 0.03,
-          bevelDepth: 0,
-          bevelWidth: 0.273,
-          frost: 0,
-          shadow: false,
-          specular: false,
-        },
-      },
-      {
-        label: "Frost",
-        sub: "Privacy-glass soft blur",
-        icon: "❄",
-        options: {
-          refraction: 0,
-          bevelDepth: 0.035,
-          bevelWidth: 0.119,
-          frost: 0.9,
-          shadow: true,
-          specular: true,
-        },
-      },
-      {
-        label: "Edge",
-        sub: "Thin bevel + rim highlights",
-        icon: "◈",
-        options: {
-          refraction: 0.047,
-          bevelDepth: 0.136,
-          bevelWidth: 0.076,
-          frost: 2,
-          shadow: true,
-          specular: false,
-        },
-      },
-    ];
+  const dotRow = document.getElementById("dotRow");
+  presets.forEach((_, i) => {
+    const dot = document.createElement("span");
+    dot.className = "dot" + (i === 0 ? " active" : "");
+    dot.addEventListener("click", () => goTo(i));
+    dotRow.appendChild(dot);
+  });
 
-    let current = 0;
-    let glassEffect = null;
-    let animating = false;
+  function updateDots(idx) {
+    dotRow.querySelectorAll(".dot").forEach((d, i) => {
+      d.classList.toggle("active", i === idx);
+    });
+  }
 
-    /* ── Build dot indicators ── */
-    const dotRow = document.getElementById("dotRow");
-    presets.forEach((_, i) => {
-      const dot = document.createElement("span");
-      dot.className = "dot" + (i === 0 ? " active" : "");
-      dot.addEventListener("click", () => goTo(i));
-      dotRow.appendChild(dot);
+  function updateLabel(idx) {
+    const content = document.getElementById("barContent");
+    const icon = document.getElementById("labelIcon");
+    const text = document.getElementById("labelText");
+    const sub = document.getElementById("labelSub");
+    const p = presets[idx];
+    animating = true;
+    content.classList.add("swapping");
+    setTimeout(() => {
+      icon.textContent = p.icon;
+      text.textContent = p.label;
+      sub.textContent = p.sub;
+      content.classList.remove("swapping");
+      animating = false;
+    }, 300);
+  }
+
+  function initGlass(options) {
+    glassEffect = liquidGL({
+      snapshot: "body",
+      target: ".liquidGL-bar",
+      resolution: 1.8,
+      reveal: "fade",
+      tilt: false,
+      magnify: 1,
+      ...options,
+    });
+  }
+
+  function goTo(idx) {
+    if (animating) return;
+    current = (idx + presets.length) % presets.length;
+    updateLabel(current);
+    updateDots(current);
+    if (glassEffect && glassEffect.destroy) glassEffect.destroy();
+    initGlass(presets[current].options);
+  }
+
+  window.addEventListener("load", () => {
+    initGlass(presets[0].options);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") goTo(current + 1);
+      if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   goTo(current - 1);
     });
 
-    /* ── Update dot indicators ── */
-    function updateDots(idx) {
-      dotRow.querySelectorAll(".dot").forEach((d, i) => {
-        d.classList.toggle("active", i === idx);
-      });
-    }
-
-    /* ── Update label content (with swap anim) ── */
-    function updateLabel(idx) {
-      const content = document.getElementById("barContent");
-      const icon = document.getElementById("labelIcon");
-      const text = document.getElementById("labelText");
-      const sub = document.getElementById("labelSub");
-      const p = presets[idx];
-
-      animating = true;
-      content.classList.add("swapping");
-
-      setTimeout(() => {
-        icon.textContent = p.icon;
-        text.textContent = p.label;
-        sub.textContent = p.sub;
-        content.classList.remove("swapping");
-        animating = false;
-      }, 300);
-    }
-
-    /* ── Navigate to preset ── */
-    function goTo(idx) {
-      if (animating) return;
-      current = (idx + presets.length) % presets.length;
-      const p = presets[current];
-
-      updateLabel(current);
-      updateDots(current);
-
-      /* Re-initialise liquidGL with new preset options */
-      if (glassEffect && glassEffect.destroy) {
-        glassEffect.destroy();
-      }
-
-      glassEffect = liquidGL({
-        snapshot: "body",
-        target: ".liquidGL-bar",
-        resolution: 1.8,
-        reveal: "fade",
-        tilt: false,
-        magnify: 1,
-        ...p.options,
-      });
-    }
-
-    /* ── Init on load ── */
-    document.addEventListener("DOMContentLoaded", () => {
-      glassEffect = liquidGL({
-        snapshot: "body",
-        target: ".liquidGL-bar",
-        resolution: 1.8,
-        reveal: "fade",
-        tilt: false,
-        magnify: 1,
-        ...presets[0].options,
-      });
-
-      /* Keyboard nav */
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowRight" || e.key === "ArrowDown") goTo(current + 1);
-        if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   goTo(current - 1);
-      });
-
-      document.getElementById("nextBtn").addEventListener("click", () => goTo(current + 1));
-      document.getElementById("prevBtn").addEventListener("click", () => goTo(current - 1));
-    });
-  </script>
+    document.getElementById("nextBtn").addEventListener("click", () => goTo(current + 1));
+    document.getElementById("prevBtn").addEventListener("click", () => goTo(current - 1));
+  });
+</script>
 </body>
 </html>
