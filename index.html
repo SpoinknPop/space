@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Noise & Dynamic Waves</title>
+    <title>Noisy Mesh Gradient</title>
     <style>
-        /* CSS Reset and Base Styles */
+        /* Base Reset */
         * {
             margin: 0;
             padding: 0;
@@ -16,22 +16,90 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #050505; /* Deep dark modern background */
+            background-color: #222; /* Fallback dark background */
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* The Canvas where the JS waves are drawn */
-        #waveCanvas {
+        /* 1. The Mesh Gradient Container */
+        .mesh-container {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
             z-index: 1;
+            /* A subtle base gradient to tie it all together */
+            background: linear-gradient(135deg, #a361e6, #4b369d);
         }
 
-        /* The Modern Noise Overlay */
-        /* Generates a fractal noise SVG and overlays it with CSS */
+        /* 2. The Color Orbs */
+        .color-orb {
+            position: absolute;
+            border-radius: 50%;
+            /* This massive blur is what blends the shapes into a smooth mesh gradient */
+            filter: blur(120px); 
+            opacity: 0.9;
+            /* Hardware acceleration for smoother animation */
+            will-change: transform; 
+        }
+
+        /* Matching the colors from your image */
+        .orb-pink {
+            top: -20%;
+            left: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: #ff529a;
+            animation: moveOrb1 15s infinite alternate ease-in-out;
+        }
+
+        .orb-yellow {
+            top: -10%;
+            right: -10%;
+            width: 55vw;
+            height: 55vw;
+            background: #d4e845;
+            animation: moveOrb2 18s infinite alternate ease-in-out;
+        }
+
+        .orb-blue {
+            bottom: -20%;
+            left: -10%;
+            width: 65vw;
+            height: 65vw;
+            background: #4732f1;
+            animation: moveOrb3 20s infinite alternate ease-in-out;
+        }
+
+        .orb-cyan {
+            bottom: -15%;
+            right: -15%;
+            width: 60vw;
+            height: 60vw;
+            background: #00d4ff;
+            animation: moveOrb4 17s infinite alternate ease-in-out;
+        }
+
+        /* 3. The Animations */
+        @keyframes moveOrb1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(15vw, 15vh) scale(1.1); }
+        }
+        @keyframes moveOrb2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-10vw, 20vh) scale(1.2); }
+        }
+        @keyframes moveOrb3 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20vw, -10vh) scale(1.15); }
+        }
+        @keyframes moveOrb4 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-15vw, -15vh) scale(1.05); }
+        }
+
+        /* 4. The Noise Overlay */
         .noise-overlay {
             position: absolute;
             top: 0;
@@ -39,13 +107,15 @@
             width: 100%;
             height: 100%;
             z-index: 2;
-            pointer-events: none; /* Allows clicking through the noise to the canvas/content */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            opacity: 0.12; /* Keeps the grain subtle and modern */
-            mix-blend-mode: overlay; /* Blends the grain with the colors behind it */
+            pointer-events: none;
+            /* SVG fractal noise generated directly in the CSS */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            /* Increased opacity and overlay blend mode to match your reference */
+            opacity: 0.35; 
+            mix-blend-mode: overlay;
         }
 
-        /* Sample Content to show how to layer text over the background */
+        /* Sample Foreground Content */
         .content {
             position: relative;
             z-index: 3;
@@ -53,121 +123,30 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: #ffffff;
-            text-align: center;
-            pointer-events: none;
+            color: white;
         }
 
         h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            background: linear-gradient(135deg, #ffffff, #a3a3a3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 3rem;
+            letter-spacing: 1px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
-    <!-- HTML5 Canvas for the shapes -->
-    <canvas id="waveCanvas"></canvas>
-    
-    <!-- CSS Grain/Noise Overlay -->
-    <div class="noise-overlay"></div>
-
-    <!-- Foreground Content -->
-    <div class="content">
-        <h1>Modern Noise</h1>
+    <div class="mesh-container">
+        <div class="color-orb orb-pink"></div>
+        <div class="color-orb orb-yellow"></div>
+        <div class="color-orb orb-blue"></div>
+        <div class="color-orb orb-cyan"></div>
     </div>
 
-    <script>
-        const canvas = document.getElementById('waveCanvas');
-        const ctx = canvas.getContext('2d');
+    <div class="noise-overlay"></div>
 
-        let width, height;
-        let waves = [];
+    <div class="content">
+        <h1>Mesh Gradient</h1>
+    </div>
 
-        // A vibrant, modern color palette
-        const colors = [
-            'rgba(255, 42, 84, 0.6)',   // Vibrant Pink/Red
-            'rgba(0, 242, 254, 0.6)',   // Cyan
-            'rgba(127, 0, 255, 0.6)',   // Purple
-            'rgba(255, 127, 0, 0.6)',   // Orange
-            'rgba(79, 172, 254, 0.6)'   // Light Blue
-        ];
-
-        // Resize canvas to fill the screen
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            initWaves();
-        }
-
-        // Initialize wave properties
-        function initWaves() {
-            waves = [];
-            const numWaves = 5; // Number of overlapping shapes
-
-            for (let i = 0; i < numWaves; i++) {
-                waves.push({
-                    y: height / 2, // Base vertical center
-                    length: 0.002 + Math.random() * 0.003, // Wave width (frequency)
-                    amplitude: 100 + Math.random() * 200, // Wave height
-                    speed: 0.01 + Math.random() * 0.015, // Movement speed
-                    color: colors[i % colors.length], // Assign color
-                    offset: Math.random() * Math.PI * 2, // Starting phase
-                    verticalShift: (Math.random() - 0.5) * 300 // Shift up or down
-                });
-            }
-        }
-
-        // The animation loop
-        function animate() {
-            // Clear canvas entirely each frame for transparent fluid shapes
-            ctx.clearRect(0, 0, width, height);
-            
-            // Use screen blend mode for a glowing, modern intersection effect
-            ctx.globalCompositeOperation = 'screen';
-
-            waves.forEach(wave => {
-                ctx.beginPath();
-                
-                // Start drawing from the left side, way off-screen
-                ctx.moveTo(0, height); 
-                
-                // Draw the top curve of the wave across the screen width
-                for (let x = 0; x <= width; x += 15) { // 15px step for performance
-                    // Calculate Y position using sine math
-                    const y = wave.y + wave.verticalShift + Math.sin(x * wave.length + wave.offset) * wave.amplitude;
-                    ctx.lineTo(x, y);
-                }
-
-                // Close the path by drawing down to the bottom right, then bottom left
-                ctx.lineTo(width, height);
-                ctx.lineTo(0, height);
-                ctx.closePath();
-
-                // Fill the shape
-                ctx.fillStyle = wave.color;
-                ctx.fill();
-
-                // Move the wave forward by its speed
-                wave.offset += wave.speed;
-            });
-
-            // Loop the animation
-            requestAnimationFrame(animate);
-        }
-
-        // Event listeners
-        window.addEventListener('resize', resize);
-
-        // Bootstrap the environment
-        resize();
-        animate();
-    </script>
 </body>
 </html>
