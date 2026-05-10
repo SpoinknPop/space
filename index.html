@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>liquidGL Demo</title>
+  <title>Portfolio</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0a0a14;
-      overflow-x: hidden;
+      background: #c8cdd6;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
+    /* ── Scrollable background sections ── */
     .bg-section {
       height: 100vh;
       display: flex;
@@ -23,205 +24,181 @@
       overflow: hidden;
     }
 
-    .bg-section:nth-child(1) { background: linear-gradient(135deg, #1a0533 0%, #3d1278 50%, #0d1f6b 100%); }
-    .bg-section:nth-child(2) { background: linear-gradient(135deg, #033a2e 0%, #0f7a5a 50%, #1a3d6b 100%); }
-    .bg-section:nth-child(3) { background: linear-gradient(135deg, #3d0a0a 0%, #8b1a6b 50%, #1a0d3d 100%); }
+    .bg-section:nth-child(1) { background: #c8cdd6; }
+    .bg-section:nth-child(2) { background: #bcc3ce; }
+    .bg-section:nth-child(3) { background: #c2c8d2; }
+    .bg-section:nth-child(4) { background: #c5cad3; }
 
     .bg-text {
-      font-size: clamp(4rem, 12vw, 9rem);
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      color: rgba(255,255,255,0.06);
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: rgba(0,0,0,0.04);
       user-select: none;
       pointer-events: none;
       text-align: center;
-      line-height: 1;
     }
 
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(70px);
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .bg-section:nth-child(1) .blob-a { width: 400px; height: 400px; background: #5533ff; top: -80px; left: -60px; }
-    .bg-section:nth-child(1) .blob-b { width: 350px; height: 350px; background: #cc44ff; bottom: -60px; right: -40px; }
-    .bg-section:nth-child(2) .blob-a { width: 380px; height: 380px; background: #00cc88; top: -60px; right: -80px; }
-    .bg-section:nth-child(2) .blob-b { width: 320px; height: 320px; background: #0088ff; bottom: -80px; left: -60px; }
-    .bg-section:nth-child(3) .blob-a { width: 420px; height: 420px; background: #ff3366; top: -100px; left: 20%; }
-    .bg-section:nth-child(3) .blob-b { width: 300px; height: 300px; background: #aa00ff; bottom: -60px; right: 10%; }
-
-    /* ── Glass bar — liquidGL target, NO interactive children ── */
+    /* ── Glass bar ── */
     .glass-bar {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 560px;
-      height: 72px;
-      border-radius: 36px;
+      width: 480px;
+      height: 68px;
+      border-radius: 34px;
       z-index: 100;
       pointer-events: none;
     }
 
-    @media (max-width: 620px) {
-      .glass-bar { width: 90vw; }
-      .ui-overlay { width: 90vw !important; }
+    @media (max-width: 540px) {
+      .glass-bar { width: 92vw; }
+      .ui-overlay { width: 92vw !important; }
     }
 
-    /* Label text inside the bar */
-    .bar-label {
+    /* Label inside bar */
+    .bar-inner {
       position: relative;
       z-index: 3;
       width: 100%;
       height: 100%;
       display: flex;
       align-items: center;
-      padding: 0 1.5rem;
-      gap: 0.75rem;
+      justify-content: center;
+      padding: 0 0.75rem;
+      gap: 0.25rem;
       pointer-events: none;
     }
 
-    .label-icon {
-      font-size: 1.4rem;
+    /* Active pill indicator inside the bar */
+    .active-pill {
+      position: absolute;
+      height: 52px;
+      border-radius: 26px;
+      background: #2563eb;
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* Nav item text shown inside bar */
+    .bar-nav-item {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      height: 52px;
+      padding: 0 1.1rem;
+      border-radius: 26px;
       flex-shrink: 0;
-      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
-    .label-info { overflow: hidden; }
-
-    .label-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: rgba(255,255,255,0.92);
-      white-space: nowrap;
-      transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-
-    .label-sub {
-      font-size: 0.7rem;
+    .bar-nav-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
       color: rgba(255,255,255,0.5);
-      margin-top: 1px;
+      transition: color 0.3s ease;
       white-space: nowrap;
-      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
-    /* ── Buttons live OUTSIDE the glass bar ── */
+    .bar-nav-item.active .bar-nav-label {
+      color: #fff;
+    }
+
+    /* ── Buttons outside the bar ── */
     .ui-overlay {
       position: fixed;
-      top: calc(50% + 48px);
+      top: calc(50% + 50px);
       left: 50%;
       transform: translateX(-50%);
-      width: 560px;
+      width: 480px;
       display: flex;
       justify-content: center;
-      gap: 0.4rem;
+      gap: 0.5rem;
       z-index: 200;
     }
 
     .tab-btn {
-      padding: 0.35rem 0.85rem;
+      padding: 0.4rem 1rem;
       border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.6);
+      border: 1px solid rgba(0,0,0,0.12);
+      background: rgba(255,255,255,0.35);
+      color: rgba(0,0,0,0.55);
       cursor: pointer;
       font-size: 0.72rem;
       font-weight: 600;
-      letter-spacing: 0.03em;
-      transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+      letter-spacing: 0.02em;
+      transition: background 0.2s, color 0.2s, transform 0.15s;
       white-space: nowrap;
       backdrop-filter: blur(8px);
     }
 
     .tab-btn:hover {
-      background: rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.55);
+      color: rgba(0,0,0,0.8);
     }
 
     .tab-btn:active { transform: scale(0.93); }
 
     .tab-btn.active {
-      background: rgba(255,255,255,0.25);
+      background: #2563eb;
       color: #fff;
-      border-color: rgba(255,255,255,0.5);
-    }
-
-    /* Label fade animation */
-    .fading .label-icon,
-    .fading .label-title,
-    .fading .label-sub {
-      opacity: 0;
-      transform: translateY(5px);
+      border-color: #2563eb;
     }
   </style>
 </head>
 <body>
 
-  <div class="bg-section">
-    <div class="blob blob-a"></div>
-    <div class="blob blob-b"></div>
-    <div class="bg-text">GLASS</div>
-  </div>
-  <div class="bg-section">
-    <div class="blob blob-a"></div>
-    <div class="blob blob-b"></div>
-    <div class="bg-text">LIQUID</div>
-  </div>
-  <div class="bg-section">
-    <div class="blob blob-a"></div>
-    <div class="blob blob-b"></div>
-    <div class="bg-text">REFRACT</div>
-  </div>
+  <div class="bg-section"><div class="bg-text">About Me</div></div>
+  <div class="bg-section"><div class="bg-text">Projects</div></div>
+  <div class="bg-section"><div class="bg-text">Skills</div></div>
+  <div class="bg-section"><div class="bg-text">Contact</div></div>
 
-  <!-- Glass bar: label only, pointer-events none -->
+  <!-- Glass bar: only decorative label inside, no clickable children -->
   <div class="glass-bar">
-    <div class="bar-label" id="barLabel">
-      <span class="label-icon" id="labelIcon">✦</span>
-      <div class="label-info">
-        <div class="label-title" id="labelTitle">Default</div>
-        <div class="label-sub" id="labelSub">Balanced refraction + bevel</div>
-      </div>
+    <div class="bar-inner" id="barInner">
+      <div class="active-pill" id="activePill"></div>
+      <!-- nav items injected by JS -->
     </div>
   </div>
 
-  <!-- Buttons sit below the bar, completely outside liquidGL's canvas -->
+  <!-- Clickable buttons below the bar -->
   <div class="ui-overlay" id="tabRow"></div>
 
   <script src="scripts/html2canvas.min.js"></script>
   <script src="scripts/liquidGL.js"></script>
   <script>
-    const presets = [
-      {
-        label: "Default", sub: "Balanced refraction", icon: "✦",
-        options: { refraction: 0, bevelDepth: 0.052, bevelWidth: 0.211, frost: 2, shadow: true, specular: true }
-      },
-      {
-        label: "Alien", sub: "Sci-fi deep bevel", icon: "⬡",
-        options: { refraction: 0.073, bevelDepth: 0.2, bevelWidth: 0.156, frost: 2, shadow: true, specular: false }
-      },
-      {
-        label: "Pulse", sub: "Flat pane, wide bevel", icon: "◉",
-        options: { refraction: 0.03, bevelDepth: 0, bevelWidth: 0.273, frost: 0, shadow: false, specular: false }
-      },
-      {
-        label: "Frost", sub: "Privacy-glass blur", icon: "❄",
-        options: { refraction: 0, bevelDepth: 0.035, bevelWidth: 0.119, frost: 0.9, shadow: true, specular: true }
-      },
-      {
-        label: "Edge", sub: "Thin bevel + highlights", icon: "◈",
-        options: { refraction: 0.047, bevelDepth: 0.136, bevelWidth: 0.076, frost: 2, shadow: true, specular: false }
-      },
+    const pages = [
+      { label: "About Me"  },
+      { label: "Projects"  },
+      { label: "Skills"    },
+      { label: "Contact"   },
     ];
 
     let current = 0;
     let lensList = [];
 
-    // Build buttons
-    const tabRow = document.getElementById("tabRow");
-    presets.forEach((p, i) => {
+    const barInner  = document.getElementById("barInner");
+    const activePill = document.getElementById("activePill");
+    const tabRow    = document.getElementById("tabRow");
+
+    // Build mirrored nav items inside bar (visual only)
+    const barItems = pages.map((p, i) => {
+      const el = document.createElement("div");
+      el.className = "bar-nav-item" + (i === 0 ? " active" : "");
+      el.innerHTML = `<span class="bar-nav-label">${p.label}</span>`;
+      barInner.appendChild(el);
+      return el;
+    });
+
+    // Build clickable buttons below bar
+    pages.forEach((p, i) => {
       const btn = document.createElement("button");
       btn.className = "tab-btn" + (i === 0 ? " active" : "");
       btn.textContent = p.label;
@@ -229,39 +206,27 @@
       tabRow.appendChild(btn);
     });
 
+    function movePill(idx) {
+      const item = barItems[idx];
+      // Position pill over the active bar-nav-item
+      activePill.style.left   = item.offsetLeft + "px";
+      activePill.style.width  = item.offsetWidth + "px";
+    }
+
     function updateTabs(idx) {
       tabRow.querySelectorAll(".tab-btn").forEach((b, i) => {
         b.classList.toggle("active", i === idx);
       });
-    }
-
-    function updateLabel(idx) {
-      const label = document.getElementById("barLabel");
-      label.classList.add("fading");
-      setTimeout(() => {
-        document.getElementById("labelIcon").textContent = presets[idx].icon;
-        document.getElementById("labelTitle").textContent = presets[idx].label;
-        document.getElementById("labelSub").textContent = presets[idx].sub;
-        label.classList.remove("fading");
-      }, 260);
-    }
-
-    function applyPreset(idx) {
-      const opts = presets[idx].options;
-      lensList.forEach(ln => {
-        if (!ln) return;
-        Object.assign(ln.options, opts);
-        ln.setShadow(opts.shadow);
-        ln.setTilt(false);
+      barItems.forEach((el, i) => {
+        el.classList.toggle("active", i === idx);
       });
+      movePill(idx);
     }
 
     function goTo(idx) {
       if (idx === current) return;
       current = idx;
       updateTabs(current);
-      updateLabel(current);
-      applyPreset(current);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -275,6 +240,12 @@
         specular: true,
         tilt: false,
         reveal: "fade",
+        on: {
+          init() {
+            // Set pill position after liquidGL has rendered
+            movePill(0);
+          }
+        }
       });
 
       lensList = Array.isArray(glassEffect) ? glassEffect : [glassEffect];
@@ -282,6 +253,7 @@
 
     window.addEventListener("load", () => {
       liquidGL.syncWith();
+      movePill(0);
     });
   </script>
 </body>
