@@ -1,260 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portfolio</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Noise & Dynamic Waves</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #c8cdd6;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050505; /* Deep dark modern background */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
 
-    /* ── Scrollable background sections ── */
-    .bg-section {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
+        /* The Canvas where the JS waves are drawn */
+        #waveCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
 
-    .bg-section:nth-child(1) { background: #c8cdd6; }
-    .bg-section:nth-child(2) { background: #bcc3ce; }
-    .bg-section:nth-child(3) { background: #c2c8d2; }
-    .bg-section:nth-child(4) { background: #c5cad3; }
+        /* The Modern Noise Overlay */
+        /* Generates a fractal noise SVG and overlays it with CSS */
+        .noise-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none; /* Allows clicking through the noise to the canvas/content */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.12; /* Keeps the grain subtle and modern */
+            mix-blend-mode: overlay; /* Blends the grain with the colors behind it */
+        }
 
-    .bg-text {
-      font-size: clamp(3rem, 10vw, 7rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: rgba(0,0,0,0.04);
-      user-select: none;
-      pointer-events: none;
-      text-align: center;
-    }
+        /* Sample Content to show how to layer text over the background */
+        .content {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ffffff;
+            text-align: center;
+            pointer-events: none;
+        }
 
-    /* ── Glass bar ── */
-    .glass-bar {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 480px;
-      height: 68px;
-      border-radius: 34px;
-      z-index: 100;
-      pointer-events: none;
-    }
-
-    @media (max-width: 540px) {
-      .glass-bar { width: 92vw; }
-      .ui-overlay { width: 92vw !important; }
-    }
-
-    /* Label inside bar */
-    .bar-inner {
-      position: relative;
-      z-index: 3;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 0.75rem;
-      gap: 0.25rem;
-      pointer-events: none;
-    }
-
-    /* Active pill indicator inside the bar */
-    .active-pill {
-      position: absolute;
-      height: 52px;
-      border-radius: 26px;
-      background: #2563eb;
-      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    /* Nav item text shown inside bar */
-    .bar-nav-item {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      height: 52px;
-      padding: 0 1.1rem;
-      border-radius: 26px;
-      flex-shrink: 0;
-    }
-
-    .bar-nav-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.01em;
-      color: rgba(255,255,255,0.5);
-      transition: color 0.3s ease;
-      white-space: nowrap;
-    }
-
-    .bar-nav-item.active .bar-nav-label {
-      color: #fff;
-    }
-
-    /* ── Buttons outside the bar ── */
-    .ui-overlay {
-      position: fixed;
-      top: calc(50% + 50px);
-      left: 50%;
-      transform: translateX(-50%);
-      width: 480px;
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      z-index: 200;
-    }
-
-    .tab-btn {
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      border: 1px solid rgba(0,0,0,0.12);
-      background: rgba(255,255,255,0.35);
-      color: rgba(0,0,0,0.55);
-      cursor: pointer;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      transition: background 0.2s, color 0.2s, transform 0.15s;
-      white-space: nowrap;
-      backdrop-filter: blur(8px);
-    }
-
-    .tab-btn:hover {
-      background: rgba(255,255,255,0.55);
-      color: rgba(0,0,0,0.8);
-    }
-
-    .tab-btn:active { transform: scale(0.93); }
-
-    .tab-btn.active {
-      background: #2563eb;
-      color: #fff;
-      border-color: #2563eb;
-    }
-  </style>
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            background: linear-gradient(135deg, #ffffff, #a3a3a3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="bg-section"><div class="bg-text">About Me</div></div>
-  <div class="bg-section"><div class="bg-text">Projects</div></div>
-  <div class="bg-section"><div class="bg-text">Skills</div></div>
-  <div class="bg-section"><div class="bg-text">Contact</div></div>
+    <!-- HTML5 Canvas for the shapes -->
+    <canvas id="waveCanvas"></canvas>
+    
+    <!-- CSS Grain/Noise Overlay -->
+    <div class="noise-overlay"></div>
 
-  <!-- Glass bar: only decorative label inside, no clickable children -->
-  <div class="glass-bar">
-    <div class="bar-inner" id="barInner">
-      <div class="active-pill" id="activePill"></div>
-      <!-- nav items injected by JS -->
+    <!-- Foreground Content -->
+    <div class="content">
+        <h1>Modern Noise</h1>
     </div>
-  </div>
 
-  <!-- Clickable buttons below the bar -->
-  <div class="ui-overlay" id="tabRow"></div>
+    <script>
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
 
-  <script src="scripts/html2canvas.min.js"></script>
-  <script src="scripts/liquidGL.js"></script>
-  <script>
-    const pages = [
-      { label: "About Me"  },
-      { label: "Projects"  },
-      { label: "Skills"    },
-      { label: "Contact"   },
-    ];
+        let width, height;
+        let waves = [];
 
-    let current = 0;
-    let lensList = [];
+        // A vibrant, modern color palette
+        const colors = [
+            'rgba(255, 42, 84, 0.6)',   // Vibrant Pink/Red
+            'rgba(0, 242, 254, 0.6)',   // Cyan
+            'rgba(127, 0, 255, 0.6)',   // Purple
+            'rgba(255, 127, 0, 0.6)',   // Orange
+            'rgba(79, 172, 254, 0.6)'   // Light Blue
+        ];
 
-    const barInner  = document.getElementById("barInner");
-    const activePill = document.getElementById("activePill");
-    const tabRow    = document.getElementById("tabRow");
-
-    // Build mirrored nav items inside bar (visual only)
-    const barItems = pages.map((p, i) => {
-      const el = document.createElement("div");
-      el.className = "bar-nav-item" + (i === 0 ? " active" : "");
-      el.innerHTML = `<span class="bar-nav-label">${p.label}</span>`;
-      barInner.appendChild(el);
-      return el;
-    });
-
-    // Build clickable buttons below bar
-    pages.forEach((p, i) => {
-      const btn = document.createElement("button");
-      btn.className = "tab-btn" + (i === 0 ? " active" : "");
-      btn.textContent = p.label;
-      btn.addEventListener("click", () => goTo(i));
-      tabRow.appendChild(btn);
-    });
-
-    function movePill(idx) {
-      const item = barItems[idx];
-      // Position pill over the active bar-nav-item
-      activePill.style.left   = item.offsetLeft + "px";
-      activePill.style.width  = item.offsetWidth + "px";
-    }
-
-    function updateTabs(idx) {
-      tabRow.querySelectorAll(".tab-btn").forEach((b, i) => {
-        b.classList.toggle("active", i === idx);
-      });
-      barItems.forEach((el, i) => {
-        el.classList.toggle("active", i === idx);
-      });
-      movePill(idx);
-    }
-
-    function goTo(idx) {
-      if (idx === current) return;
-      current = idx;
-      updateTabs(current);
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const glassEffect = liquidGL({
-        target: ".glass-bar",
-        refraction: 0,
-        bevelDepth: 0.052,
-        bevelWidth: 0.211,
-        frost: 2,
-        shadow: true,
-        specular: true,
-        tilt: false,
-        reveal: "fade",
-        on: {
-          init() {
-            // Set pill position after liquidGL has rendered
-            movePill(0);
-          }
+        // Resize canvas to fill the screen
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initWaves();
         }
-      });
 
-      lensList = Array.isArray(glassEffect) ? glassEffect : [glassEffect];
-    });
+        // Initialize wave properties
+        function initWaves() {
+            waves = [];
+            const numWaves = 5; // Number of overlapping shapes
 
-    window.addEventListener("load", () => {
-      liquidGL.syncWith();
-      movePill(0);
-    });
-  </script>
+            for (let i = 0; i < numWaves; i++) {
+                waves.push({
+                    y: height / 2, // Base vertical center
+                    length: 0.002 + Math.random() * 0.003, // Wave width (frequency)
+                    amplitude: 100 + Math.random() * 200, // Wave height
+                    speed: 0.01 + Math.random() * 0.015, // Movement speed
+                    color: colors[i % colors.length], // Assign color
+                    offset: Math.random() * Math.PI * 2, // Starting phase
+                    verticalShift: (Math.random() - 0.5) * 300 // Shift up or down
+                });
+            }
+        }
+
+        // The animation loop
+        function animate() {
+            // Clear canvas entirely each frame for transparent fluid shapes
+            ctx.clearRect(0, 0, width, height);
+            
+            // Use screen blend mode for a glowing, modern intersection effect
+            ctx.globalCompositeOperation = 'screen';
+
+            waves.forEach(wave => {
+                ctx.beginPath();
+                
+                // Start drawing from the left side, way off-screen
+                ctx.moveTo(0, height); 
+                
+                // Draw the top curve of the wave across the screen width
+                for (let x = 0; x <= width; x += 15) { // 15px step for performance
+                    // Calculate Y position using sine math
+                    const y = wave.y + wave.verticalShift + Math.sin(x * wave.length + wave.offset) * wave.amplitude;
+                    ctx.lineTo(x, y);
+                }
+
+                // Close the path by drawing down to the bottom right, then bottom left
+                ctx.lineTo(width, height);
+                ctx.lineTo(0, height);
+                ctx.closePath();
+
+                // Fill the shape
+                ctx.fillStyle = wave.color;
+                ctx.fill();
+
+                // Move the wave forward by its speed
+                wave.offset += wave.speed;
+            });
+
+            // Loop the animation
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        window.addEventListener('resize', resize);
+
+        // Bootstrap the environment
+        resize();
+        animate();
+    </script>
 </body>
 </html>
