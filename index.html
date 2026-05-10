@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>liquidGL Demo</title>
+  <style>
+    :root {
+      --bg-a: #0a0a14;
+      --bg-b: #12122a;
+      --accent: #7c6cfc;
+      --accent-soft: rgba(124, 108, 252, 0.18);
+      --text: #f0eeff;
+      --text-muted: rgba(240, 238, 255, 0.45);
+      --bar-h: 72px;
+      --bar-w: min(680px, 90vw);
+      --radius: 36px;
+      --transition: 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Animated background blobs ── */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.55;
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+
+    .blob-1 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, #4f3de0 0%, transparent 70%);
+      top: -120px; left: -100px;
+      animation-delay: 0s;
+    }
+    .blob-2 {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, #c044e0 0%, transparent 70%);
+      bottom: -100px; right: -60px;
+      animation-delay: -4s;
+    }
+    .blob-3 {
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, #1e8fff 0%, transparent 70%);
+      top: 40%; left: 55%;
+      animation-delay: -8s;
+    }
+
+    .bg-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .headline {
+      font-size: clamp(3.5rem, 10vw, 7rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      opacity: 0.08;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .sub-row {
+      display: flex;
+      gap: 3rem;
+      opacity: 0.06;
+    }
+
+    .sub-word {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    /* ── Center stage ── */
+    .stage {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    /* ── The glass bar (liquidGL target) ── */
+    .glass-bar {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: var(--bar-w);
+      height: var(--bar-h);
+      border-radius: var(--radius);
+      z-index: 100;
+    }
+
+    /* Content sits inside the bar */
+    .bar-content {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem 0 1.5rem;
+      gap: 1rem;
+    }
+
+    /* Sample label */
+    .bar-label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      overflow: hidden;
+    }
+
+    .label-icon {
+      font-size: 1.35rem;
+      flex-shrink: 0;
+      line-height: 1;
+      transition: transform var(--transition), opacity var(--transition);
+    }
+
+    .label-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: rgba(255,255,255,0.92);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.3s ease;
+    }
+
+    .label-sub {
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.55);
+      margin-top: 1px;
+    }
+
+    /* Nav controls */
+    .bar-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.85);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(2px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.18);
+      transform: scale(1.08);
+    }
+
+    .nav-btn:active { transform: scale(0.94); }
+
+    .dot-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 4px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .dot.active {
+      background: rgba(255,255,255,0.9);
+      transform: scale(1.25);
+    }
+
+    /* ── Below-bar caption (outside glass) ── */
+    .caption {
+      position: fixed;
+      top: calc(50% + 52px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      pointer-events: none;
+    }
+
+    /* ── Transition overlay for swapping ── */
+    .bar-content.swapping .label-icon { transform: scale(0.7); opacity: 0; }
+    .bar-content.swapping .label-text { opacity: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Background decorative layer -->
+  <div class="bg-layer">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="bg-text">
+      <div class="headline">liquidGL</div>
+      <div class="sub-row">
+        <span class="sub-word">WebGL</span>
+        <span class="sub-word">Refraction</span>
+        <span class="sub-word">Glassmorphism</span>
+      </div>
+      <div class="headline" style="font-size: clamp(2rem, 6vw, 4rem);">liquid glass</div>
+      <div class="sub-row">
+        <span class="sub-word">Bevel</span>
+        <span class="sub-word">Specular</span>
+        <span class="sub-word">Frost</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- The glass bar — liquidGL will target this -->
+  <div class="glass-bar liquidGL-bar">
+    <div class="bar-content" id="barContent">
+      <div class="bar-label">
+        <span class="label-icon" id="labelIcon">✦</span>
+        <div>
+          <div class="label-text" id="labelText">Default</div>
+          <div class="label-sub" id="labelSub">Balanced refraction + bevel</div>
+        </div>
+      </div>
+      <div class="bar-nav">
+        <button class="nav-btn" id="prevBtn" aria-label="Previous">‹</button>
+        <div class="dot-row" id="dotRow"></div>
+        <button class="nav-btn" id="nextBtn" aria-label="Next">›</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="caption">← → to navigate · click dots to jump</div>
+
+  <!-- html2canvas (required by liquidGL) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- liquidGL from jsDelivr CDN -->
+  <script src="scripts/liquidGL.js"></script>
+
+  <script>
+    /* ── Presets ── */
+    const presets = [
+      {
+        label: "Default",
+        sub: "Balanced refraction + bevel",
+        icon: "✦",
+        options: {
+          refraction: 0,
+          bevelDepth: 0.052,
+          bevelWidth: 0.211,
+          frost: 2,
+          shadow: true,
+          specular: true,
+        },
+      },
+      {
+        label: "Alien",
+        sub: "Sci-fi deep bevel",
+        icon: "⬡",
+        options: {
+          refraction: 0.073,
+          bevelDepth: 0.2,
+          bevelWidth: 0.156,
+          frost: 2,
+          shadow: true,
+          specular: false,
+        },
+      },
+      {
+        label: "Pulse",
+        sub: "Flat pane with wide bevel",
+        icon: "◉",
+        options: {
+          refraction: 0.03,
+          bevelDepth: 0,
+          bevelWidth: 0.273,
+          frost: 0,
+          shadow: false,
+          specular: false,
+        },
+      },
+      {
+        label: "Frost",
+        sub: "Privacy-glass soft blur",
+        icon: "❄",
+        options: {
+          refraction: 0,
+          bevelDepth: 0.035,
+          bevelWidth: 0.119,
+          frost: 0.9,
+          shadow: true,
+          specular: true,
+        },
+      },
+      {
+        label: "Edge",
+        sub: "Thin bevel + rim highlights",
+        icon: "◈",
+        options: {
+          refraction: 0.047,
+          bevelDepth: 0.136,
+          bevelWidth: 0.076,
+          frost: 2,
+          shadow: true,
+          specular: false,
+        },
+      },
+    ];
+
+    let current = 0;
+    let glassEffect = null;
+    let animating = false;
+
+    /* ── Build dot indicators ── */
+    const dotRow = document.getElementById("dotRow");
+    presets.forEach((_, i) => {
+      const dot = document.createElement("span");
+      dot.className = "dot" + (i === 0 ? " active" : "");
+      dot.addEventListener("click", () => goTo(i));
+      dotRow.appendChild(dot);
+    });
+
+    /* ── Update dot indicators ── */
+    function updateDots(idx) {
+      dotRow.querySelectorAll(".dot").forEach((d, i) => {
+        d.classList.toggle("active", i === idx);
+      });
+    }
+
+    /* ── Update label content (with swap anim) ── */
+    function updateLabel(idx) {
+      const content = document.getElementById("barContent");
+      const icon = document.getElementById("labelIcon");
+      const text = document.getElementById("labelText");
+      const sub = document.getElementById("labelSub");
+      const p = presets[idx];
+
+      animating = true;
+      content.classList.add("swapping");
+
+      setTimeout(() => {
+        icon.textContent = p.icon;
+        text.textContent = p.label;
+        sub.textContent = p.sub;
+        content.classList.remove("swapping");
+        animating = false;
+      }, 300);
+    }
+
+    /* ── Navigate to preset ── */
+    function goTo(idx) {
+      if (animating) return;
+      current = (idx + presets.length) % presets.length;
+      const p = presets[current];
+
+      updateLabel(current);
+      updateDots(current);
+
+      /* Re-initialise liquidGL with new preset options */
+      if (glassEffect && glassEffect.destroy) {
+        glassEffect.destroy();
+      }
+
+      glassEffect = liquidGL({
+        snapshot: "body",
+        target: ".liquidGL-bar",
+        resolution: 1.8,
+        reveal: "fade",
+        tilt: false,
+        magnify: 1,
+        ...p.options,
+      });
+    }
+
+    /* ── Init on load ── */
+    document.addEventListener("DOMContentLoaded", () => {
+      glassEffect = liquidGL({
+        snapshot: "body",
+        target: ".liquidGL-bar",
+        resolution: 1.8,
+        reveal: "fade",
+        tilt: false,
+        magnify: 1,
+        ...presets[0].options,
+      });
+
+      /* Keyboard nav */
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") goTo(current + 1);
+        if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   goTo(current - 1);
+      });
+
+      document.getElementById("nextBtn").addEventListener("click", () => goTo(current + 1));
+      document.getElementById("prevBtn").addEventListener("click", () => goTo(current - 1));
+    });
+  </script>
+</body>
+</html>
