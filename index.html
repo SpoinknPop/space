@@ -11,91 +11,26 @@
       width: 100%; height: 100%;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #000;
     }
 
-    /* ── Full-page layout container (not fixed, so html2canvas captures it) ── */
-    #page {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* ── Animated mesh gradient background ── */
-    #bg {
+    /* Full-page canvas — NOT fixed, so html2canvas captures it */
+    #bgCanvas {
       position: absolute;
-      inset: 0;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       z-index: 0;
-      background-color: #c040e0;
-      background-image:
-        radial-gradient(ellipse at var(--b1x) var(--b1y), #ff4db8 0%, transparent 55%),
-        radial-gradient(ellipse at var(--b2x) var(--b2y), #ffe033 0%, transparent 50%),
-        radial-gradient(ellipse at var(--b3x) var(--b3y), #33ff99 0%, transparent 52%),
-        radial-gradient(ellipse at var(--b4x) var(--b4y), #3399ff 0%, transparent 54%),
-        radial-gradient(ellipse at var(--b5x) var(--b5y), #aa44ff 0%, transparent 50%),
-        radial-gradient(ellipse at var(--b6x) var(--b6y), #00eeff 0%, transparent 48%);
+      display: block;
     }
 
-    /* Grain overlay */
-    #bg::after {
-      content: '';
+    /* Glass pill — absolute, liquidGL target */
+    .glass-pill {
       position: absolute;
-      inset: 0;
-      opacity: 0.35;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 200px 200px;
-      pointer-events: none;
-    }
-
-    /* ── Blue nav bar — absolute, centered, always static ── */
-    .nav-bar {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 520px;
-      height: 58px;
-      border-radius: 29px;
-      background: #1d4ed8;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-    }
-
-    .nav-item {
-      flex: 1;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: rgba(255, 255, 255, 0.55);
-      white-space: nowrap;
-      user-select: none;
-    }
-
-    /* ── Glass pill wrapper — absolute, handles left/width slide ── */
-    .glass-wrapper {
-      position: absolute;
-      top: 50%;
       height: 80px;
+      border-radius: 40px;
       z-index: 20;
       pointer-events: none;
-      transform: translateY(-50%);
-      transition:
-        left  0.46s cubic-bezier(0.4, 0, 0.2, 1),
-        width 0.46s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* ── Glass pill — liquidGL target, handles the smoosh ── */
-    .glass-pill {
-      width: 100%;
-      height: 100%;
-      border-radius: 40px;
       transform-origin: center center;
-      /* transitions managed fully by JS */
     }
 
     .glass-inner {
@@ -106,224 +41,296 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      pointer-events: none;
     }
 
     .glass-label {
       font-size: 0.78rem;
       font-weight: 700;
-      color: rgba(255, 255, 255, 0.95);
+      color: rgba(255,255,255,0.95);
       letter-spacing: 0.02em;
       white-space: nowrap;
       transition: opacity 0.12s ease;
+      pointer-events: none;
     }
 
     .glass-label.fading { opacity: 0; }
 
-    /* ── Click overlay — fixed on top, maps to nav bar position ── */
+    /* Click overlay — fixed, maps exactly over the nav bar */
     .click-overlay {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 520px;
-      height: 58px;
       z-index: 999;
       display: flex;
-      align-items: stretch;
     }
 
     .click-area {
       flex: 1;
       cursor: pointer;
     }
-
-    @media (max-width: 580px) {
-      .nav-bar, .click-overlay { width: 92vw; }
-    }
   </style>
 </head>
 <body>
 
-<div id="page">
+  <!--
+    One canvas covers the whole page.
+    It draws:
+      1. Animated colorful gradient background
+      2. Grain noise
+      3. The static blue nav bar (pill shape + text)
+    liquidGL snapshots this canvas and refracts it through the glass pill.
+  -->
+  <canvas id="bgCanvas"></canvas>
 
-  <!-- Background (registered as dynamic so glass refracts its animation) -->
-  <div id="bg"></div>
-
-  <!-- Blue bar — static, always shows all labels -->
-  <div class="nav-bar" id="navBar">
-    <div class="nav-item" data-idx="0">About Me</div>
-    <div class="nav-item" data-idx="1">Projects</div>
-    <div class="nav-item" data-idx="2">Skills</div>
-    <div class="nav-item" data-idx="3">Contact</div>
-  </div>
-
-  <!-- Glass wrapper → pill (liquidGL target) -->
-  <div class="glass-wrapper" id="glassWrapper">
-    <div class="glass-pill" id="glassPill">
-      <div class="glass-inner">
-        <span class="glass-label" id="glassLabel">About Me</span>
-      </div>
+  <!-- Glass pill sits on top — liquidGL target -->
+  <div class="glass-pill" id="glassPill">
+    <div class="glass-inner">
+      <span class="glass-label" id="glassLabel">About Me</span>
     </div>
   </div>
 
-</div>
+  <!-- Invisible click zones, positioned by JS to match the nav bar on canvas -->
+  <div class="click-overlay" id="clickOverlay">
+    <div class="click-area" data-idx="0"></div>
+    <div class="click-area" data-idx="1"></div>
+    <div class="click-area" data-idx="2"></div>
+    <div class="click-area" data-idx="3"></div>
+  </div>
 
-<!-- Click zones (fixed, sits above everything) -->
-<div class="click-overlay">
-  <div class="click-area" data-idx="0"></div>
-  <div class="click-area" data-idx="1"></div>
-  <div class="click-area" data-idx="2"></div>
-  <div class="click-area" data-idx="3"></div>
-</div>
+  <script src="scripts/html2canvas.min.js"></script>
+  <script src="scripts/liquidGL.js"></script>
+  <script>
+    const pages = ['About Me', 'Projects', 'Skills', 'Contact'];
+    let current  = 0;
+    let animating = false;
 
-<script src="scripts/html2canvas.min.js"></script>
-<script src="scripts/liquidGL.js"></script>
-<script>
-  /* ── Background animation (CSS custom props) ── */
-  const basePos = [
-    [15, 30], [78, 20], [50, 70],
-    [20, 80], [75, 50], [55, 35],
-  ];
-  const blobDefs = [
-    { phase: [0.0, 1.5], speed: [0.00031, 0.00023] },
-    { phase: [2.1, 0.8], speed: [0.00027, 0.00034] },
-    { phase: [4.2, 3.1], speed: [0.00019, 0.00028] },
-    { phase: [1.0, 4.7], speed: [0.00035, 0.00021] },
-    { phase: [3.3, 2.4], speed: [0.00022, 0.00038] },
-    { phase: [5.5, 0.3], speed: [0.00040, 0.00018] },
-  ];
-  const bg = document.getElementById('bg');
+    const canvas     = document.getElementById('bgCanvas');
+    const ctx        = canvas.getContext('2d');
+    const pill       = document.getElementById('glassPill');
+    const glassLabel = document.getElementById('glassLabel');
+    const overlay    = document.getElementById('clickOverlay');
 
-  blobDefs.forEach((_, i) => {
-    bg.style.setProperty(`--b${i+1}x`, `${basePos[i][0]}%`);
-    bg.style.setProperty(`--b${i+1}y`, `${basePos[i][1]}%`);
-  });
+    // Nav bar dimensions — computed once, reused everywhere
+    const BAR_W  = 520;
+    const BAR_H  = 58;
+    const BAR_R  = 29;  // border-radius
+    const PAD    = 14;  // glass overhangs nav item by this much each side
+    const PILL_H = 80;
 
-  function animBg(t) {
-    blobDefs.forEach((b, i) => {
-      const nx = basePos[i][0] + Math.sin(t * b.speed[0] + b.phase[0]) * 22;
-      const ny = basePos[i][1] + Math.cos(t * b.speed[1] + b.phase[1]) * 18;
-      bg.style.setProperty(`--b${i+1}x`, `${nx}%`);
-      bg.style.setProperty(`--b${i+1}y`, `${ny}%`);
-    });
-    requestAnimationFrame(animBg);
-  }
-  requestAnimationFrame(animBg);
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      positionOverlay();
+    }
 
-  /* ── Nav ── */
-  const pages      = ['About Me', 'Projects', 'Skills', 'Contact'];
-  let   current    = 0;
-  let   animating  = false;
+    // Where is the nav bar on screen?
+    function barLeft()   { return (canvas.width  - BAR_W) / 2; }
+    function barTop()    { return (canvas.height - BAR_H) / 2; }
+    function itemWidth() { return BAR_W / pages.length; }
 
-  const navBar     = document.getElementById('navBar');
-  const navItems   = document.querySelectorAll('.nav-item');
-  const wrapper    = document.getElementById('glassWrapper');
-  const pill       = document.getElementById('glassPill');
-  const glassLabel = document.getElementById('glassLabel');
-  const clickAreas = document.querySelectorAll('.click-area');
+    // Position click overlay to match the painted nav bar
+    function positionOverlay() {
+      overlay.style.left   = barLeft() + 'px';
+      overlay.style.top    = barTop()  + 'px';
+      overlay.style.width  = BAR_W + 'px';
+      overlay.style.height = BAR_H + 'px';
+    }
 
-  const PAD = 14;
+    // Snap glass pill over a nav item (no transition)
+    function snapPill(idx) {
+      const iw   = itemWidth();
+      const left = barLeft() + iw * idx - PAD;
+      const top  = barTop()  + (BAR_H - PILL_H) / 2;
+      const w    = iw + PAD * 2;
 
-  function snapPill(idx) {
-    const r = navItems[idx].getBoundingClientRect();
-    const barRect = navBar.getBoundingClientRect();
-    // Use offsets relative to #page (since wrapper is absolute inside it)
-    const pageRect = document.getElementById('page').getBoundingClientRect();
-    const itemLeft = r.left - pageRect.left;
-    const itemTop  = r.top  - pageRect.top + r.height / 2;
-
-    // Temporarily disable transitions
-    const prevT = wrapper.style.transition;
-    wrapper.style.transition = 'none';
-    pill.style.transition = 'none';
-
-    wrapper.style.left  = (itemLeft - PAD) + 'px';
-    wrapper.style.width = (r.width + PAD * 2) + 'px';
-    // Vertically center the wrapper on the item center
-    wrapper.style.top   = itemTop + 'px';
-
-    pill.style.transform    = 'scaleX(1) scaleY(1)';
-    pill.style.borderRadius = '40px';
-    pill.offsetHeight; // force reflow
-
-    wrapper.style.transition = prevT;
-  }
-
-  function goTo(idx) {
-    if (idx === current || animating) return;
-    animating = true;
-    current = idx;
-
-    const r = navItems[idx].getBoundingClientRect();
-    const pageRect = document.getElementById('page').getBoundingClientRect();
-    const itemLeft = r.left - pageRect.left;
-
-    // 1. Smoosh: squish tall → wide (taffy stretch)
-    pill.style.transition = 'transform 0.18s cubic-bezier(0.4,0,0.6,1), border-radius 0.18s ease';
-    pill.style.transform  = 'scaleX(1.14) scaleY(0.68)';
-    pill.style.borderRadius = '55px';
-
-    glassLabel.classList.add('fading');
-
-    // 2. Slide to new position
-    setTimeout(() => {
-      wrapper.style.left  = (itemLeft - PAD) + 'px';
-      wrapper.style.width = (r.width + PAD * 2) + 'px';
-    }, 55);
-
-    // 3. Bounce — arrive tall and narrow
-    setTimeout(() => {
-      pill.style.transition = 'transform 0.24s cubic-bezier(0.18,1.5,0.4,1), border-radius 0.24s ease';
-      pill.style.transform  = 'scaleX(0.90) scaleY(1.14)';
-      pill.style.borderRadius = '46px';
-    }, 290);
-
-    // 4. Settle
-    setTimeout(() => {
-      pill.style.transition = 'transform 0.18s cubic-bezier(0.4,0,0.2,1), border-radius 0.18s ease';
-      pill.style.transform  = 'scaleX(1) scaleY(1)';
+      pill.style.transition = 'none';
+      pill.style.left   = left + 'px';
+      pill.style.top    = top  + 'px';
+      pill.style.width  = w    + 'px';
+      pill.style.height = PILL_H + 'px';
+      pill.style.transform = 'scaleX(1) scaleY(1)';
       pill.style.borderRadius = '40px';
-      glassLabel.textContent = pages[idx];
-      glassLabel.classList.remove('fading');
-      animating = false;
-    }, 480);
-  }
+      pill.offsetHeight;
+    }
 
-  clickAreas.forEach(area => {
-    area.addEventListener('click', () => goTo(parseInt(area.dataset.idx)));
-  });
+    function slidePill(idx) {
+      const iw   = itemWidth();
+      const left = barLeft() + iw * idx - PAD;
+      const w    = iw + PAD * 2;
+      pill.style.transition =
+        'left 0.46s cubic-bezier(0.4,0,0.2,1), width 0.46s cubic-bezier(0.4,0,0.2,1)';
+      pill.style.left  = left + 'px';
+      pill.style.width = w    + 'px';
+    }
 
-  /* ── Init liquidGL ── */
-  document.addEventListener('DOMContentLoaded', () => {
-    // Small delay so background paints before snapshot
-    setTimeout(() => {
-      snapPill(0);
+    /* ── Blob animation state ── */
+    const blobs = [
+      { x: 0.15, y: 0.30, hue: 320, sx: 0.00031, sy: 0.00023, px: 0.0, py: 1.5, r: 0.52 },
+      { x: 0.78, y: 0.20, hue:  55, sx: 0.00027, sy: 0.00034, px: 2.1, py: 0.8, r: 0.46 },
+      { x: 0.50, y: 0.70, hue: 155, sx: 0.00019, sy: 0.00028, px: 4.2, py: 3.1, r: 0.48 },
+      { x: 0.20, y: 0.80, hue: 210, sx: 0.00035, sy: 0.00021, px: 1.0, py: 4.7, r: 0.44 },
+      { x: 0.75, y: 0.50, hue: 275, sx: 0.00022, sy: 0.00038, px: 3.3, py: 2.4, r: 0.42 },
+      { x: 0.55, y: 0.35, hue: 185, sx: 0.00040, sy: 0.00018, px: 5.5, py: 0.3, r: 0.38 },
+    ];
 
-      const glassEffect = liquidGL({
-        snapshot: '#page',
-        target: '.glass-pill',
-        resolution: 2.0,
-        refraction: 0.04,
-        bevelDepth: 0.06,
-        bevelWidth: 0.22,
-        frost: 0,
-        shadow: true,
-        specular: true,
-        tilt: false,
-        reveal: 'fade',
+    // Offscreen grain canvas (generated once)
+    const grainCanvas = document.createElement('canvas');
+    grainCanvas.width = grainCanvas.height = 256;
+    const gc = grainCanvas.getContext('2d');
+    const id = gc.createImageData(256, 256);
+    for (let i = 0; i < id.data.length; i += 4) {
+      const v = Math.random() * 255 | 0;
+      id.data[i] = id.data[i+1] = id.data[i+2] = v;
+      id.data[i+3] = 255;
+    }
+    gc.putImageData(id, 0, 0);
+
+    function drawRoundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function drawFrame(t) {
+      const W = canvas.width, H = canvas.height;
+
+      // 1. Dark base
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#1a0030';
+      ctx.fillRect(0, 0, W, H);
+
+      // 2. Blobs
+      ctx.globalCompositeOperation = 'screen';
+      blobs.forEach(b => {
+        const hue = (b.hue + t * 0.015) % 360;
+        const cx  = (b.x + Math.sin(t * b.sx + b.px) * 0.22) * W;
+        const cy  = (b.y + Math.cos(t * b.sy + b.py) * 0.18) * H;
+        const rad = b.r * Math.min(W, H);
+        const g   = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+        g.addColorStop(0,   `hsla(${hue},90%,68%,0.9)`);
+        g.addColorStop(0.5, `hsla(${hue},85%,58%,0.4)`);
+        g.addColorStop(1,   `hsla(${hue},80%,50%,0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+        ctx.fill();
       });
 
-      // Register the animated background so glass refracts it in real-time
-      liquidGL.registerDynamic('#bg');
+      // 3. Grain (tiled, semi-transparent)
+      ctx.globalCompositeOperation = 'overlay';
+      ctx.globalAlpha = 0.28;
+      const pat = ctx.createPattern(grainCanvas, 'repeat');
+      ctx.fillStyle = pat;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 1;
 
-    }, 150);
-  });
+      // 4. Blue nav bar (drawn on canvas so glass refracts it)
+      ctx.globalCompositeOperation = 'source-over';
+      const bx = barLeft(), by = barTop();
 
-  window.addEventListener('load', () => {
-    snapPill(0);
-    liquidGL.syncWith();
-  });
-</script>
+      // Bar shadow
+      ctx.shadowColor   = 'rgba(0,0,40,0.45)';
+      ctx.shadowBlur    = 24;
+      ctx.shadowOffsetY = 6;
+      drawRoundRect(ctx, bx, by, BAR_W, BAR_H, BAR_R);
+      ctx.fillStyle = '#1d4ed8';
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur  = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Nav labels
+      ctx.font      = '600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const iw = itemWidth();
+      pages.forEach((label, i) => {
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillText(label, bx + iw * i + iw / 2, by + BAR_H / 2);
+      });
+
+      requestAnimationFrame(drawFrame);
+    }
+
+    /* ── Click & nav logic ── */
+    function goTo(idx) {
+      if (idx === current || animating) return;
+      animating = true;
+      current = idx;
+
+      // Smoosh
+      pill.style.transition    = 'transform 0.18s cubic-bezier(0.4,0,0.6,1), border-radius 0.18s ease';
+      pill.style.transform     = 'scaleX(1.14) scaleY(0.68)';
+      pill.style.borderRadius  = '55px';
+
+      glassLabel.classList.add('fading');
+
+      setTimeout(() => slidePill(idx), 55);
+
+      setTimeout(() => {
+        pill.style.transition   = 'transform 0.24s cubic-bezier(0.18,1.5,0.4,1), border-radius 0.24s ease';
+        pill.style.transform    = 'scaleX(0.90) scaleY(1.14)';
+        pill.style.borderRadius = '46px';
+      }, 290);
+
+      setTimeout(() => {
+        pill.style.transition   = 'transform 0.18s cubic-bezier(0.4,0,0.2,1), border-radius 0.18s ease';
+        pill.style.transform    = 'scaleX(1) scaleY(1)';
+        pill.style.borderRadius = '40px';
+        glassLabel.textContent  = pages[idx];
+        glassLabel.classList.remove('fading');
+        animating = false;
+      }, 480);
+    }
+
+    overlay.querySelectorAll('.click-area').forEach(area => {
+      area.addEventListener('click', () => goTo(parseInt(area.dataset.idx)));
+    });
+
+    window.addEventListener('resize', () => {
+      resize();
+      snapPill(current);
+    });
+
+    /* ── Boot ── */
+    resize();
+    requestAnimationFrame(drawFrame);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        snapPill(0);
+
+        liquidGL({
+          snapshot: 'body',
+          target:   '.glass-pill',
+          resolution: 2.0,
+          refraction: 0.04,
+          bevelDepth: 0.06,
+          bevelWidth: 0.22,
+          frost:    0,
+          shadow:   true,
+          specular: true,
+          tilt:     false,
+          reveal:  'fade',
+        });
+
+        // Tell liquidGL to watch the canvas for updates
+        liquidGL.registerDynamic('#bgCanvas');
+
+      }, 200);
+    });
+
+    window.addEventListener('load', () => {
+      snapPill(0);
+      positionOverlay();
+      liquidGL.syncWith();
+    });
+  </script>
 </body>
 </html>
