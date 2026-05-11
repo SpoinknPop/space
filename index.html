@@ -39,7 +39,7 @@
         radial-gradient(ellipse at var(--b5x) var(--b5y), #aa44ff 0%, transparent 50%),
         radial-gradient(ellipse at var(--b6x) var(--b6y), #00eeff 0%, transparent 48%);
       display: flex;
-      align-items: center;
+      align-items: flex-start; /* Changed from center to accommodate scrolling better */
       justify-content: center;
       background-attachment: fixed; /* Keeps background static while scrolling */
     }
@@ -63,8 +63,8 @@
       display: flex;
       flex-direction: column;
       gap: 2rem;
-      margin-top: -5vh; /* Adjusted for better vertical balance */
-      padding: 40px 0 120px 0; /* Extra bottom padding for nav bar clearance */
+      margin-top: 5vh; /* Changed from -5vh to 5vh for better desktop header clearance */
+      padding: 40px 0 160px 0; /* Extra bottom padding for nav bar clearance */
     }
 
     .hero-section {
@@ -76,7 +76,7 @@
       font-family: 'DM Serif Display', serif;
       font-size: clamp(2.5rem, 8vw, 5rem);
       color: rgba(255,255,255,0.95);
-      line-height: 1;
+      line-height: 1.1;
       margin-bottom: 0.5rem;
     }
 
@@ -371,12 +371,12 @@
     @media (max-width: 768px) {
       body { 
         align-items: flex-start;
-        height: auto; /* Allow height to expand for scrolling */
-        overflow-y: auto; /* Enable global scroll */
+        height: auto; 
+        overflow-y: auto; 
       }
       .content-grid { grid-template-columns: 1fr; gap: 2rem; }
       .page-content { 
-        padding: 40px 0 160px 0; /* More padding for mobile nav */
+        padding: 40px 0 160px 0; 
         margin-top: 0;
         width: 92%;
         height: auto;
