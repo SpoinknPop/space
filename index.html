@@ -189,16 +189,27 @@
       transform: translateY(-5px);
     }
 
+    /* Updated banner container to maintain exact image aspect ratio */
+    .project-banner-container {
+      width: 100%;
+      aspect-ratio: 1840 / 838;
+      background: rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .project-banner-img {
       width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      height: 100%;
+      object-fit: contain; /* Ensures the entire image is shown without cropping */
       transition: transform 0.5s ease;
     }
 
     .project-card:hover .project-banner-img {
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
 
     .project-content {
@@ -448,7 +459,7 @@
       1: `
         <div class="content-grid" style="grid-template-columns: 1fr;">
           <div class="project-card">
-            <div style="overflow: hidden; height: 200px;">
+            <div class="project-banner-container">
                 <img src="icons/visceria_banner.webp" class="project-banner-img" alt="Visceria Banner">
             </div>
             <div class="project-content">
