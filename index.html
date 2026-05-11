@@ -61,7 +61,6 @@
       display: flex;
       flex-direction: column;
       gap: 2rem;
-      /* Significant upward shift for better visual centering of the whole block */
       margin-top: -12vh;
     }
 
@@ -93,7 +92,6 @@
       display: grid;
       grid-template-columns: 1.5fr 1fr;
       gap: 3rem;
-      /* Center items vertically relative to each other */
       align-items: center; 
     }
 
@@ -104,7 +102,6 @@
       font-weight: 300;
     }
 
-    /* Social Link Buttons */
     .social-column {
       display: flex;
       flex-direction: column;
@@ -123,18 +120,12 @@
       font-size: 0.9rem;
       transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.3s ease;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      
-      /* FIXING GRADIENT GLITCH: 
-         Avoid 'filter' on the element itself which causes edge fringing.
-         Use background-origin to ensure the gradient fills the entire border box perfectly.
-      */
       border: 1px solid rgba(255,255,255,0.15);
       background-origin: border-box;
       background-clip: border-box;
       position: relative;
     }
 
-    /* Use an overlay for hover brightness to avoid edge-pixel glitches */
     .social-btn::after {
       content: '';
       position: absolute;
@@ -155,14 +146,20 @@
       opacity: 0.15;
     }
 
-    /* Solid base colors + gradients to ensure no transparent gaps on edges */
+    /* Custom PNG Icon Styling */
+    .btn-icon-png {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+
     .btn-spotify { 
       background-color: #1DB954;
       background-image: linear-gradient(135deg, #1DB954 0%, #111111 100%); 
     }
-    .btn-instagram { 
-      background-color: #bc1888;
-      background-image: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
+    .btn-discord { 
+      background-color: #5865F2;
+      background-image: linear-gradient(45deg, #5865F2 0%, #404EED 100%); 
     }
     .btn-twitter { 
       background-color: #1DA1F2;
@@ -278,7 +275,10 @@
   </div>
 
   <script>
-    /* --- Content Database --- */
+    /* To use local images:
+       If your images are in the same folder as this index.html, use: src="spotify.png"
+       If they are in a subfolder called "images", use: src="images/spotify.png"
+    */
     const contentData = {
       0: `
         <div class="content-grid">
@@ -292,23 +292,39 @@
           </section>
           <aside class="social-column">
             <a href="https://open.spotify.com/user/iuwydyl88v8ni1k2iv9h1e8aw" target="_blank" class="social-btn btn-spotify">
-              <span class="btn-label"><i data-lucide="music"></i> Spotify</span>
+              <span class="btn-label">
+                <!-- Replace 'spotify-icon.png' with your actual local filename -->
+                <img src="icons/spotify.png" class="btn-icon-png" alt="Spotify"> 
+                Spotify
+              </span>
               <span class="btn-arrow"><i data-lucide="external-link"></i></span>
             </a>
-            <a href="#" class="social-btn btn-instagram">
-              <span class="btn-label"><i data-lucide="instagram"></i> Instagram</span>
+            <a href="https://discord.gg/5QAyBHYbEM" target="_blank" class="social-btn btn-discord">
+              <span class="btn-label">
+                <img src="discord-icon.png" class="btn-icon-png" alt="Discord"> 
+                Discord
+              </span>
               <span class="btn-arrow"><i data-lucide="external-link"></i></span>
             </a>
             <a href="#" class="social-btn btn-twitter">
-              <span class="btn-label"><i data-lucide="twitter"></i> Twitter</span>
+              <span class="btn-label">
+                <img src="twitter-icon.png" class="btn-icon-png" alt="Twitter"> 
+                Twitter
+              </span>
               <span class="btn-arrow"><i data-lucide="external-link"></i></span>
             </a>
             <a href="#" class="social-btn btn-github">
-              <span class="btn-label"><i data-lucide="github"></i> GitHub</span>
+              <span class="btn-label">
+                <img src="github-icon.png" class="btn-icon-png" alt="GitHub"> 
+                GitHub
+              </span>
               <span class="btn-arrow"><i data-lucide="external-link"></i></span>
             </a>
             <a href="#" class="social-btn btn-custom">
-              <span class="btn-label"><i data-lucide="layers"></i> My Projects</span>
+              <span class="btn-label">
+                <i data-lucide="layers"></i> 
+                My Projects
+              </span>
               <span class="btn-arrow"><i data-lucide="arrow-right"></i></span>
             </a>
           </aside>
