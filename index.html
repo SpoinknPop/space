@@ -6,6 +6,8 @@
   <title>Portfolio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
       --glass-bg:      rgba(255,255,255,0.10);
@@ -14,6 +16,7 @@
       --active-border: rgba(255,255,255,0.40);
       --text-dim:      rgba(255,255,255,0.50);
       --text-bright:   rgba(255,255,255,0.97);
+      --btn-brightness: 1;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,7 +25,6 @@
       width: 100%; height: 100%;
       overflow: hidden;
       font-family: 'DM Sans', sans-serif;
-      /* Restored default cursor */
       cursor: default;
     }
 
@@ -35,6 +37,9 @@
         radial-gradient(ellipse at var(--b4x) var(--b4y), #3399ff 0%, transparent 54%),
         radial-gradient(ellipse at var(--b5x) var(--b5y), #aa44ff 0%, transparent 50%),
         radial-gradient(ellipse at var(--b6x) var(--b6y), #00eeff 0%, transparent 48%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Grainy Texture Overlay */
@@ -42,11 +47,141 @@
       content: '';
       position: fixed; inset: 0;
       z-index: 1;
-      opacity: 0.2;
+      opacity: 0.15;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       pointer-events: none;
     }
 
+    /* Layout Containers */
+    .page-content {
+      position: relative;
+      z-index: 10;
+      width: 90%;
+      max-width: 1000px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      /* Significant upward shift for better visual centering of the whole block */
+      margin-top: -12vh;
+    }
+
+    .hero-section {
+      text-align: left;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      color: rgba(255,255,255,0.95);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-sub {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+    }
+
+    #mainContent {
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 3rem;
+      /* Center items vertically relative to each other */
+      align-items: center; 
+    }
+
+    .about-text {
+      color: rgba(255,255,255,0.85);
+      font-size: 1.1rem;
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    /* Social Link Buttons */
+    .social-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      border-radius: 100px; 
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      
+      /* FIXING GRADIENT GLITCH: 
+         Avoid 'filter' on the element itself which causes edge fringing.
+         Use background-origin to ensure the gradient fills the entire border box perfectly.
+      */
+      border: 1px solid rgba(255,255,255,0.15);
+      background-origin: border-box;
+      background-clip: border-box;
+      position: relative;
+    }
+
+    /* Use an overlay for hover brightness to avoid edge-pixel glitches */
+    .social-btn::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 100px;
+      background: white;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .social-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+
+    .social-btn:hover::after {
+      opacity: 0.15;
+    }
+
+    /* Solid base colors + gradients to ensure no transparent gaps on edges */
+    .btn-spotify { 
+      background-color: #1DB954;
+      background-image: linear-gradient(135deg, #1DB954 0%, #111111 100%); 
+    }
+    .btn-instagram { 
+      background-color: #bc1888;
+      background-image: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
+    }
+    .btn-twitter { 
+      background-color: #1DA1F2;
+      background-image: linear-gradient(135deg, #1DA1F2 0%, #0d8bd9 100%); 
+    }
+    .btn-github { 
+      background-color: #24292e;
+      background-image: linear-gradient(135deg, #24292e 0%, #111111 100%); 
+    }
+    .btn-custom { 
+      background-color: #ec4899;
+      background-image: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); 
+    }
+
+    .btn-label { display: flex; align-items: center; gap: 14px; z-index: 2; }
+    .btn-label i { width: 18px; height: 18px; }
+    .btn-arrow { opacity: 0.7; font-size: 0.8rem; z-index: 2; display: flex; align-items: center; }
+
+    /* Navigation Bar */
     .nav-wrap {
       position: fixed;
       bottom: 40px; 
@@ -79,54 +214,130 @@
 
     .nav-btn {
       position: relative; z-index: 1;
-      display: flex; align-items: center; gap: 8px;
+      display: flex; align-items: center; gap: 10px;
       padding: 10px 24px;
       border-radius: 40px; border: none; background: transparent;
       color: var(--text-dim);
       font-family: 'DM Sans', sans-serif;
       font-size: 0.85rem; font-weight: 500;
-      cursor: pointer; /* Restored pointer cursor for buttons */
+      cursor: pointer;
       white-space: nowrap;
       transition: color 0.3s;
     }
     .nav-btn.active { color: var(--text-bright); }
+    .nav-btn i { width: 16px; height: 16px; }
 
-    .page-content {
-      position: fixed; inset: 0; z-index: 3;
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; pointer-events: none;
+    /* Cards */
+    .grid-view {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
     }
-    .page-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(3rem, 10vw, 6rem);
-      color: rgba(255,255,255,0.9);
-      text-align: center; line-height: 1;
-      margin-bottom: 0.5rem;
+
+    .card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      padding: 2rem;
+      border-radius: 24px;
+      color: white;
+      backdrop-filter: blur(10px);
     }
-    .page-sub {
-      font-size: 0.9rem; color: rgba(255,255,255,0.5);
-      letter-spacing: 0.3em; text-transform: uppercase;
+
+    .card h3 { margin-bottom: 0.5rem; font-family: 'DM Serif Display', serif; font-size: 1.5rem; }
+    .card p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
+
+    /* Mobile Adaptability */
+    @media (max-width: 768px) {
+      .content-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .page-content { padding-bottom: 120px; overflow-y: auto; max-height: 85vh; margin-top: 0; }
+      body { align-items: flex-start; padding-top: 40px; }
     }
   </style>
 </head>
 <body>
 
-  <div class="page-content">
-    <div class="page-title" id="pageTitle">About Me</div>
-    <div class="page-sub">Creative Portfolio</div>
-  </div>
+  <main class="page-content">
+    <div class="hero-section">
+      <div class="page-sub" id="pageSub">Creative Portfolio</div>
+      <h1 class="page-title" id="pageTitle">About Me</h1>
+    </div>
+
+    <div id="mainContent">
+      <!-- Content injected by JS -->
+    </div>
+  </main>
 
   <div class="nav-wrap">
     <nav class="nav-bar" id="navBar">
       <div class="nav-indicator" id="navIndicator"></div>
-      <button class="nav-btn active" data-idx="0">About</button>
-      <button class="nav-btn" data-idx="1">Projects</button>
-      <button class="nav-btn" data-idx="2">Skills</button>
-      <button class="nav-btn" data-idx="3">Contact</button>
+      <button class="nav-btn active" data-idx="0"><i data-lucide="user"></i>About</button>
+      <button class="nav-btn" data-idx="1"><i data-lucide="layout"></i>Projects</button>
+      <button class="nav-btn" data-idx="2"><i data-lucide="zap"></i>Skills</button>
+      <button class="nav-btn" data-idx="3"><i data-lucide="mail"></i>Contact</button>
     </nav>
   </div>
 
   <script>
+    /* --- Content Database --- */
+    const contentData = {
+      0: `
+        <div class="content-grid">
+          <section class="about-text">
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            </p>
+            <p>
+              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+          </section>
+          <aside class="social-column">
+            <a href="https://open.spotify.com/user/iuwydyl88v8ni1k2iv9h1e8aw" target="_blank" class="social-btn btn-spotify">
+              <span class="btn-label"><i data-lucide="music"></i> Spotify</span>
+              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+            </a>
+            <a href="#" class="social-btn btn-instagram">
+              <span class="btn-label"><i data-lucide="instagram"></i> Instagram</span>
+              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+            </a>
+            <a href="#" class="social-btn btn-twitter">
+              <span class="btn-label"><i data-lucide="twitter"></i> Twitter</span>
+              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+            </a>
+            <a href="#" class="social-btn btn-github">
+              <span class="btn-label"><i data-lucide="github"></i> GitHub</span>
+              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+            </a>
+            <a href="#" class="social-btn btn-custom">
+              <span class="btn-label"><i data-lucide="layers"></i> My Projects</span>
+              <span class="btn-arrow"><i data-lucide="arrow-right"></i></span>
+            </a>
+          </aside>
+        </div>
+      `,
+      1: `
+        <div class="grid-view">
+          <div class="card"><h3>Glass UI Kit</h3><p>A comprehensive library of glassmorphism components for React and Figma.</p></div>
+          <div class="card"><h3>Pulse Studio</h3><p>An experimental audio visualizer that syncs with your Spotify playback.</p></div>
+          <div class="card"><h3>Neon Synth</h3><p>A web-based synthesizer inspired by 80s arcade aesthetics.</p></div>
+        </div>
+      `,
+      2: `
+        <div class="grid-view">
+          <div class="card"><h3>Design</h3><p>UI/UX Design, Interaction Design, 3D Motion with Three.js</p></div>
+          <div class="card"><h3>Frontend</h3><p>React, TypeScript, Tailwind CSS, Framer Motion</p></div>
+          <div class="card"><h3>Tools</h3><p>Figma, Blender, VS Code, Git</p></div>
+        </div>
+      `,
+      3: `
+        <div class="about-text" style="max-width: 600px">
+          <p>Interested in working together? Drop me a message and I'll get back to you as soon as possible.</p>
+          <a href="mailto:hello@example.com" class="social-btn btn-custom" style="display:inline-flex; width: auto; margin-top: 1rem;">
+            <span class="btn-label"><i data-lucide="send"></i> hello@example.com</span>
+          </a>
+        </div>
+      `
+    };
+
     /* --- Background Animation Logic --- */
     const basePos = [[15,30], [78,20], [50,70], [20,80], [75,50], [55,35]];
     const blobDefs = [
@@ -150,10 +361,11 @@
     requestAnimationFrame(animBg);
 
     /* --- Navigation Logic --- */
-    const pages = ['About Me', 'Projects', 'Skills', 'Contact'];
+    const pages = ['About Me', 'Featured Projects', 'Core Skills', 'Get In Touch'];
     const btns = document.querySelectorAll('.nav-btn');
     const indicator = document.getElementById('navIndicator');
     const titleEl = document.getElementById('pageTitle');
+    const contentContainer = document.getElementById('mainContent');
 
     function updateIndicator(idx) {
       const btn = btns[idx];
@@ -163,24 +375,37 @@
       }
     }
 
+    function switchPage(idx) {
+      contentContainer.style.opacity = 0;
+      contentContainer.style.transform = 'translateY(10px)';
+      titleEl.style.opacity = 0;
+
+      setTimeout(() => {
+        titleEl.textContent = pages[idx];
+        contentContainer.innerHTML = contentData[idx];
+        lucide.createIcons();
+        contentContainer.style.opacity = 1;
+        contentContainer.style.transform = 'translateY(0px)';
+        titleEl.style.opacity = 1;
+      }, 300);
+    }
+
     btns.forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.idx);
-        
-        // Update Active States
         btns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
-        // Update Title
-        titleEl.textContent = pages[idx];
-        
-        // Move Glass Indicator
+        switchPage(idx);
         updateIndicator(idx);
       });
     });
 
-    // Handle initial state and responsive resizing
-    window.onload = () => updateIndicator(0);
+    window.onload = () => {
+      updateIndicator(0);
+      contentContainer.innerHTML = contentData[0];
+      lucide.createIcons();
+    };
+
     window.addEventListener('resize', () => {
       const activeBtn = document.querySelector('.nav-btn.active');
       if (activeBtn) updateIndicator(parseInt(activeBtn.dataset.idx));
