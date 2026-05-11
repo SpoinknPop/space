@@ -106,6 +106,12 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      /* Optional: Add the subtle frame seen in the selection */
+      padding: 24px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
     }
 
     .social-btn {
@@ -116,7 +122,7 @@
       border-radius: 100px; 
       text-decoration: none;
       color: white;
-      font-weight: 600;
+      font-weight: 500;
       font-size: 0.9rem;
       transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.3s ease;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -157,9 +163,9 @@
       background-color: #1DB954;
       background-image: linear-gradient(135deg, #1DB954 0%, #111111 100%); 
     }
-    .btn-discord { 
-      background-color: #5865F2;
-      background-image: linear-gradient(45deg, #5865F2 0%, #404EED 100%); 
+    .btn-instagram { 
+      background-color: #E4405F;
+      background-image: linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); 
     }
     .btn-twitter { 
       background-color: #1DA1F2;
@@ -175,7 +181,6 @@
     }
 
     .btn-label { display: flex; align-items: center; gap: 14px; z-index: 2; }
-    .btn-label i { width: 18px; height: 18px; }
     .btn-arrow { opacity: 0.7; font-size: 0.8rem; z-index: 2; display: flex; align-items: center; }
 
     /* Navigation Bar */
@@ -185,6 +190,8 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 100;
+      width: auto;
+      max-width: 90vw;
     }
 
     .nav-bar {
@@ -224,30 +231,18 @@
     .nav-btn.active { color: var(--text-bright); }
     .nav-btn i { width: 16px; height: 16px; }
 
-    /* Cards */
-    .grid-view {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      padding: 2rem;
-      border-radius: 24px;
-      color: white;
-      backdrop-filter: blur(10px);
-    }
-
-    .card h3 { margin-bottom: 0.5rem; font-family: 'DM Serif Display', serif; font-size: 1.5rem; }
-    .card p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
-
     /* Mobile Adaptability */
     @media (max-width: 768px) {
       .content-grid { grid-template-columns: 1fr; gap: 2rem; }
       .page-content { padding-bottom: 120px; overflow-y: auto; max-height: 85vh; margin-top: 0; }
       body { align-items: flex-start; padding-top: 40px; }
+      
+      .nav-wrap { bottom: 20px; width: 95vw; }
+      .nav-bar { gap: 2px; padding: 4px; justify-content: space-around; }
+      .nav-btn { padding: 12px; gap: 0; flex: 1; justify-content: center; flex-direction: column; font-size: 0.7rem; }
+      .nav-btn span { display: block; margin-top: 4px; }
+      .nav-btn i { width: 20px; height: 20px; }
+      .nav-indicator { top: 4px; height: calc(100% - 8px); }
     }
   </style>
 </head>
@@ -267,18 +262,14 @@
   <div class="nav-wrap">
     <nav class="nav-bar" id="navBar">
       <div class="nav-indicator" id="navIndicator"></div>
-      <button class="nav-btn active" data-idx="0"><i data-lucide="user"></i>About</button>
-      <button class="nav-btn" data-idx="1"><i data-lucide="layout"></i>Projects</button>
-      <button class="nav-btn" data-idx="2"><i data-lucide="zap"></i>Skills</button>
-      <button class="nav-btn" data-idx="3"><i data-lucide="mail"></i>Contact</button>
+      <button class="nav-btn active" data-idx="0"><i data-lucide="user"></i><span>About</span></button>
+      <button class="nav-btn" data-idx="1"><i data-lucide="layout"></i><span>Projects</span></button>
+      <button class="nav-btn" data-idx="2"><i data-lucide="zap"></i><span>Skills</span></button>
+      <button class="nav-btn" data-idx="3"><i data-lucide="mail"></i><span>Contact</span></button>
     </nav>
   </div>
 
   <script>
-    /* To use local images:
-       If your images are in the same folder as this index.html, use: src="spotify.png"
-       If they are in a subfolder called "images", use: src="images/spotify.png"
-    */
     const contentData = {
       0: `
         <div class="content-grid">
@@ -287,42 +278,42 @@
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
             </p>
             <p>
-              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
             </p>
           </section>
           <aside class="social-column">
-            <a href="https://open.spotify.com/user/iuwydyl88v8ni1k2iv9h1e8aw" target="_blank" class="social-btn btn-spotify">
+            <a href="#" target="_blank" class="social-btn btn-spotify">
               <span class="btn-label">
-                <!-- Replace 'spotify-icon.png' with your actual local filename -->
                 <img src="icons/spotify.png" class="btn-icon-png" alt="Spotify"> 
                 Spotify
               </span>
               <span class="btn-arrow"><i data-lucide="external-link"></i></span>
             </a>
-            <a href="https://discord.gg/5QAyBHYbEM" target="_blank" class="social-btn btn-discord">
+            <a href="#" target="_blank" class="social-btn btn-instagram">
               <span class="btn-label">
-                <img src="icons/discord.png" class="btn-icon-png" alt="Discord"> 
-                Discord
+                <img src="icons/instagram.png" class="btn-icon-png" alt="Instagram"> 
+                Instagram
               </span>
               <span class="btn-arrow"><i data-lucide="external-link"></i></span>
             </a>
-            <a href="#" class="social-btn btn-twitter">
+            <a href="#" target="_blank" class="social-btn btn-twitter">
               <span class="btn-label">
-                <img src="twitter-icon.png" class="btn-icon-png" alt="Twitter"> 
+                <img src="icons/twitter.png" class="btn-icon-png" alt="Twitter"> 
                 Twitter
               </span>
               <span class="btn-arrow"><i data-lucide="external-link"></i></span>
             </a>
-            <a href="#" class="social-btn btn-github">
+            <a href="#" target="_blank" class="social-btn btn-github">
               <span class="btn-label">
-                <img src="github-icon.png" class="btn-icon-png" alt="GitHub"> 
+                <img src="icons/github.png" class="btn-icon-png" alt="GitHub"> 
                 GitHub
               </span>
               <span class="btn-arrow"><i data-lucide="external-link"></i></span>
             </a>
             <a href="#" class="social-btn btn-custom">
               <span class="btn-label">
-                <i data-lucide="layers"></i> 
+                <img src="icons/projects.png" class="btn-icon-png" alt="Projects" onerror="this.style.display='none'">
+                <i data-lucide="layers" id="fallbackLayers"></i> 
                 My Projects
               </span>
               <span class="btn-arrow"><i data-lucide="arrow-right"></i></span>
@@ -330,28 +321,9 @@
           </aside>
         </div>
       `,
-      1: `
-        <div class="grid-view">
-          <div class="card"><h3>Glass UI Kit</h3><p>A comprehensive library of glassmorphism components for React and Figma.</p></div>
-          <div class="card"><h3>Pulse Studio</h3><p>An experimental audio visualizer that syncs with your Spotify playback.</p></div>
-          <div class="card"><h3>Neon Synth</h3><p>A web-based synthesizer inspired by 80s arcade aesthetics.</p></div>
-        </div>
-      `,
-      2: `
-        <div class="grid-view">
-          <div class="card"><h3>Design</h3><p>UI/UX Design, Interaction Design, 3D Motion with Three.js</p></div>
-          <div class="card"><h3>Frontend</h3><p>React, TypeScript, Tailwind CSS, Framer Motion</p></div>
-          <div class="card"><h3>Tools</h3><p>Figma, Blender, VS Code, Git</p></div>
-        </div>
-      `,
-      3: `
-        <div class="about-text" style="max-width: 600px">
-          <p>Interested in working together? Drop me a message and I'll get back to you as soon as possible.</p>
-          <a href="mailto:hello@example.com" class="social-btn btn-custom" style="display:inline-flex; width: auto; margin-top: 1rem;">
-            <span class="btn-label"><i data-lucide="send"></i> hello@example.com</span>
-          </a>
-        </div>
-      `
+      1: `<div class="grid-view"><div class="card"><h3>Project A</h3><p>Description here.</p></div></div>`,
+      2: `<div class="grid-view"><div class="card"><h3>Skills</h3><p>Skill list here.</p></div></div>`,
+      3: `<div class="about-text"><p>Contact me at hello@example.com</p></div>`
     };
 
     /* --- Background Animation Logic --- */
