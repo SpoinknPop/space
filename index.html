@@ -8,14 +8,12 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
     :root {
-      --glass-bg:     rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.16);
-      --glass-hover:  rgba(255, 255, 255, 0.14);
-      --active-bg:    rgba(255, 255, 255, 0.18);
-      --active-border:rgba(255, 255, 255, 0.35);
-      --text-dim:     rgba(255, 255, 255, 0.45);
-      --text-bright:  rgba(255, 255, 255, 0.95);
-      --accent:       #a78bfa;
+      --glass-bg:      rgba(255,255,255,0.10);
+      --glass-border:  rgba(255,255,255,0.20);
+      --active-bg:     rgba(255,255,255,0.20);
+      --active-border: rgba(255,255,255,0.40);
+      --text-dim:      rgba(255,255,255,0.50);
+      --text-bright:   rgba(255,255,255,0.97);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,162 +21,129 @@
     html, body {
       width: 100%; height: 100%;
       overflow: hidden;
-      background: #06040f;
       font-family: 'DM Sans', sans-serif;
-      cursor: none; /* hide default cursor — we draw our own */
+      cursor: none;
     }
 
-    /* ── Background canvas ── */
-    #bg {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
+    /* Vibrant animated gradient — fills the whole viewport */
+    body {
+      background-color: #c040e0;
+      background-image:
+        radial-gradient(ellipse at var(--b1x) var(--b1y), #ff4db8 0%, transparent 55%),
+        radial-gradient(ellipse at var(--b2x) var(--b2y), #ffe033 0%, transparent 50%),
+        radial-gradient(ellipse at var(--b3x) var(--b3y), #33ff99 0%, transparent 52%),
+        radial-gradient(ellipse at var(--b4x) var(--b4y), #3399ff 0%, transparent 54%),
+        radial-gradient(ellipse at var(--b5x) var(--b5y), #aa44ff 0%, transparent 50%),
+        radial-gradient(ellipse at var(--b6x) var(--b6y), #00eeff 0%, transparent 48%);
     }
 
-    /* ── Particle canvas (mouse trail) ── */
-    #particles {
-      position: fixed;
-      inset: 0;
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
       z-index: 1;
+      opacity: 0.32;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
       pointer-events: none;
     }
 
-    /* ── Custom cursor ── */
+    #particles {
+      position: fixed; inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
     #cursor {
       position: fixed;
-      width: 10px;
-      height: 10px;
+      width: 10px; height: 10px;
       border-radius: 50%;
       background: rgba(255,255,255,0.9);
       transform: translate(-50%, -50%);
       z-index: 9999;
       pointer-events: none;
-      transition: transform 0.1s ease, opacity 0.2s ease;
       mix-blend-mode: difference;
     }
 
-    /* ── Nav bar wrapper ── */
     .nav-wrap {
       position: fixed;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       z-index: 100;
     }
 
-    /* The frosted glass pill */
     .nav-bar {
-      display: flex;
-      align-items: center;
-      gap: 2px;
+      display: flex; align-items: center; gap: 2px;
       padding: 6px;
       border-radius: 50px;
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
       box-shadow:
-        0 0 0 1px rgba(255,255,255,0.04) inset,
-        0 8px 32px rgba(0,0,0,0.4),
-        0 2px 8px rgba(0,0,0,0.3);
+        0 0 0 1px rgba(255,255,255,0.06) inset,
+        0 8px 32px rgba(0,0,0,0.22),
+        0 2px 8px rgba(0,0,0,0.15);
       position: relative;
     }
 
-    /* Sliding active indicator */
     .nav-indicator {
-      position: absolute;
-      top: 6px;
+      position: absolute; top: 6px;
       height: calc(100% - 12px);
       border-radius: 40px;
       background: var(--active-bg);
       border: 1px solid var(--active-border);
-      box-shadow: 0 0 12px rgba(167,139,250,0.2);
-      transition:
-        left   0.42s cubic-bezier(0.4, 0, 0.2, 1),
-        width  0.42s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-      z-index: 0;
+      box-shadow: 0 0 16px rgba(255,255,255,0.15);
+      transition: left 0.42s cubic-bezier(0.4,0,0.2,1), width 0.42s cubic-bezier(0.4,0,0.2,1);
+      pointer-events: none; z-index: 0;
     }
 
-    /* Individual nav button */
     .nav-btn {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      position: relative; z-index: 1;
+      display: flex; align-items: center; gap: 7px;
       padding: 10px 18px;
-      border-radius: 40px;
-      border: none;
-      background: transparent;
+      border-radius: 40px; border: none; background: transparent;
       color: var(--text-dim);
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 500;
-      letter-spacing: 0.01em;
-      cursor: none;
+      font-size: 0.82rem; font-weight: 500; letter-spacing: 0.01em;
+      cursor: none; white-space: nowrap; user-select: none;
       transition: color 0.25s ease;
-      white-space: nowrap;
-      user-select: none;
     }
-
-    .nav-btn:hover { color: rgba(255,255,255,0.75); }
+    .nav-btn:hover  { color: rgba(255,255,255,0.78); }
     .nav-btn.active { color: var(--text-bright); }
 
-    .nav-icon {
-      width: 16px;
-      height: 16px;
-      opacity: 0.7;
-      transition: opacity 0.25s ease;
-      flex-shrink: 0;
-    }
-
+    .nav-icon { width: 16px; height: 16px; opacity: 0.7; transition: opacity 0.25s; flex-shrink: 0; }
     .nav-btn.active .nav-icon { opacity: 1; }
 
-    /* ── Page content (behind nav) ── */
     .page-content {
-      position: fixed;
-      inset: 0;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 1rem;
+      position: fixed; inset: 0; z-index: 3;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem;
       pointer-events: none;
     }
-
     .page-title {
       font-family: 'DM Serif Display', serif;
       font-size: clamp(2.5rem, 7vw, 5.5rem);
       color: rgba(255,255,255,0.08);
-      letter-spacing: -0.02em;
-      text-align: center;
-      line-height: 1.1;
+      letter-spacing: -0.02em; text-align: center; line-height: 1.1;
       user-select: none;
     }
-
     .page-sub {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.08);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
+      font-size: 0.8rem; color: rgba(255,255,255,0.08);
+      letter-spacing: 0.15em; text-transform: uppercase;
     }
   </style>
 </head>
 <body>
 
-  <canvas id="bg"></canvas>
   <canvas id="particles"></canvas>
   <div id="cursor"></div>
 
-  <!-- Ghosted background text for depth -->
   <div class="page-content">
     <div class="page-title" id="pageTitle">About Me</div>
     <div class="page-sub">Portfolio</div>
   </div>
 
-  <!-- Frosted glass nav bar -->
   <div class="nav-wrap">
     <nav class="nav-bar" id="navBar">
       <div class="nav-indicator" id="navIndicator"></div>
@@ -189,21 +154,18 @@
         </svg>
         About Me
       </button>
-
       <button class="nav-btn" data-idx="1">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
         </svg>
         Projects
       </button>
-
       <button class="nav-btn" data-idx="2">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
         </svg>
         Skills
       </button>
-
       <button class="nav-btn" data-idx="3">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
@@ -215,53 +177,42 @@
 
   <script>
     /* ═══════════════════════════════════════
-       BACKGROUND — animated mesh gradient
+       BACKGROUND — animate CSS custom props
     ═══════════════════════════════════════ */
-    const bgCanvas = document.getElementById('bg');
-    const bgCtx    = bgCanvas.getContext('2d');
-
-    const blobs = [
-      { x: 0.18, y: 0.25, hue: 270, r: 0.50, sx: 0.00028, sy: 0.00019, px: 0.0, py: 1.2 },
-      { x: 0.75, y: 0.65, hue: 210, r: 0.44, sx: 0.00022, sy: 0.00031, px: 2.3, py: 0.7 },
-      { x: 0.50, y: 0.80, hue: 300, r: 0.42, sx: 0.00035, sy: 0.00024, px: 4.1, py: 3.0 },
-      { x: 0.85, y: 0.20, hue: 190, r: 0.38, sx: 0.00018, sy: 0.00040, px: 1.5, py: 4.8 },
-      { x: 0.30, y: 0.70, hue: 240, r: 0.46, sx: 0.00031, sy: 0.00017, px: 3.7, py: 2.1 },
+    const basePos = [
+      [15, 30], [78, 20], [50, 70],
+      [20, 80], [75, 50], [55, 35],
+    ];
+    const blobDefs = [
+      { phase: [0.0, 1.5], speed: [0.00031, 0.00023] },
+      { phase: [2.1, 0.8], speed: [0.00027, 0.00034] },
+      { phase: [4.2, 3.1], speed: [0.00019, 0.00028] },
+      { phase: [1.0, 4.7], speed: [0.00035, 0.00021] },
+      { phase: [3.3, 2.4], speed: [0.00022, 0.00038] },
+      { phase: [5.5, 0.3], speed: [0.00040, 0.00018] },
     ];
 
-    function resizeBg() {
-      bgCanvas.width  = window.innerWidth;
-      bgCanvas.height = window.innerHeight;
-    }
-    resizeBg();
+    // Set initial values immediately so there's no flash
+    blobDefs.forEach((_, i) => {
+      document.body.style.setProperty(`--b${i+1}x`, `${basePos[i][0]}%`);
+      document.body.style.setProperty(`--b${i+1}y`, `${basePos[i][1]}%`);
+    });
 
-    function drawBg(t) {
-      const W = bgCanvas.width, H = bgCanvas.height;
-      bgCtx.fillStyle = '#06040f';
-      bgCtx.fillRect(0, 0, W, H);
-
-      bgCtx.globalCompositeOperation = 'screen';
-      blobs.forEach(b => {
-        const hue = (b.hue + t * 0.012) % 360;
-        const cx  = (b.x + Math.sin(t * b.sx + b.px) * 0.18) * W;
-        const cy  = (b.y + Math.cos(t * b.sy + b.py) * 0.14) * H;
-        const rad = b.r * Math.min(W, H);
-        const g   = bgCtx.createRadialGradient(cx, cy, 0, cx, cy, rad);
-        g.addColorStop(0,    `hsla(${hue},80%,38%,0.85)`);
-        g.addColorStop(0.45, `hsla(${hue},75%,28%,0.35)`);
-        g.addColorStop(1,    `hsla(${hue},70%,20%,0)`);
-        bgCtx.fillStyle = g;
-        bgCtx.beginPath();
-        bgCtx.arc(cx, cy, rad, 0, Math.PI * 2);
-        bgCtx.fill();
+    function animBg(t) {
+      blobDefs.forEach((b, i) => {
+        const nx = basePos[i][0] + Math.sin(t * b.speed[0] + b.phase[0]) * 22;
+        const ny = basePos[i][1] + Math.cos(t * b.speed[1] + b.phase[1]) * 18;
+        document.body.style.setProperty(`--b${i+1}x`, `${nx}%`);
+        document.body.style.setProperty(`--b${i+1}y`, `${ny}%`);
       });
-
-      bgCtx.globalCompositeOperation = 'source-over';
-      requestAnimationFrame(drawBg);
+      requestAnimationFrame(animBg);
     }
-    requestAnimationFrame(drawBg);
+    requestAnimationFrame(animBg);
 
     /* ═══════════════════════════════════════
-       PARTICLES — mouse trail
+       PARTICLES — calm drifting, fade in/out
+       Max 8 alive at once. Each spawns near
+       cursor, drifts slowly, fades in then out.
     ═══════════════════════════════════════ */
     const pCanvas = document.getElementById('particles');
     const pCtx    = pCanvas.getContext('2d');
@@ -271,67 +222,98 @@
       pCanvas.height = window.innerHeight;
     }
     resizeP();
+    window.addEventListener('resize', () => { resizeP(); updateIndicator(current); });
 
-    window.addEventListener('resize', () => { resizeBg(); resizeP(); updateIndicator(current); });
-
-    let mouse = { x: -200, y: -200 };
-    let particles = [];
+    let mouseX = window.innerWidth  / 2;
+    let mouseY = window.innerHeight / 2;
 
     document.addEventListener('mousemove', e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-      document.getElementById('cursor').style.left = mouse.x + 'px';
-      document.getElementById('cursor').style.top  = mouse.y + 'px';
-
-      // Spawn 2–3 particles per move
-      const count = 2 + Math.floor(Math.random() * 2);
-      for (let i = 0; i < count; i++) spawnParticle(mouse.x, mouse.y);
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      document.getElementById('cursor').style.left = e.clientX + 'px';
+      document.getElementById('cursor').style.top  = e.clientY + 'px';
     });
 
-    function spawnParticle(x, y) {
+    const MAX_PARTICLES = 8;
+    let particles = [];
+
+    // Spawn rate: try to add one every ~800ms if under cap
+    let lastSpawn = 0;
+
+    function spawnParticle() {
+      // Scatter within 30–90px of cursor
       const angle  = Math.random() * Math.PI * 2;
-      const speed  = 0.4 + Math.random() * 1.2;
-      const hue    = 240 + Math.random() * 100; // violet → indigo → blue range
-      const size   = 1.5 + Math.random() * 3;
+      const dist   = 30 + Math.random() * 60;
+      const hue    = 180 + Math.random() * 180; // cyan → blue → purple → magenta
+      const size   = 8 + Math.random() * 14;
+      const life   = 3.5 + Math.random() * 2.5; // seconds total lifespan
+      const fadeIn = 0.35 + Math.random() * 0.25; // fraction of life spent fading in
+
       particles.push({
-        x, y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 0.6, // slight upward drift
-        life: 1.0,
-        decay: 0.018 + Math.random() * 0.022,
+        x: mouseX + Math.cos(angle) * dist,
+        y: mouseY + Math.sin(angle) * dist,
+        // very slow drift
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25 - 0.08, // slight upward tendency
         size,
         hue,
-        sat:  70 + Math.random() * 30,
-        lit:  70 + Math.random() * 25,
+        sat: 70 + Math.random() * 30,
+        lit: 72 + Math.random() * 20,
+        life,           // total seconds
+        age:  0,        // seconds elapsed
+        fadeIn,         // 0..1 fraction of life that is "fade in"
+        fadeOut: 0.35 + Math.random() * 0.2, // fraction of life spent fading out
+        // peak alpha
+        peakAlpha: 0.30 + Math.random() * 0.35,
       });
     }
 
-    function drawParticles() {
+    let lastTs = 0;
+    function drawParticles(ts) {
+      const dt = Math.min((ts - lastTs) / 1000, 0.05); // seconds, capped
+      lastTs = ts;
+
+      // Spawn up to cap
+      if (particles.length < MAX_PARTICLES && ts - lastSpawn > 800) {
+        spawnParticle();
+        lastSpawn = ts;
+      }
+
       pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
 
-      particles = particles.filter(p => p.life > 0);
+      particles = particles.filter(p => p.age < p.life);
 
       particles.forEach(p => {
+        p.age += dt;
         p.x   += p.vx;
         p.y   += p.vy;
-        p.vy  += 0.015; // gentle gravity
-        p.life -= p.decay;
-        p.vx  *= 0.98;
 
-        const alpha = Math.max(0, p.life);
-        pCtx.save();
-        pCtx.globalAlpha = alpha * 0.8;
+        // Compute alpha along a smooth trapezoid:
+        //   0 → fadeIn  : ramp up
+        //   fadeIn → (1-fadeOut) : hold at peak
+        //   (1-fadeOut) → 1 : ramp down
+        const t = p.age / p.life; // 0..1
+        let alpha;
+        if (t < p.fadeIn) {
+          alpha = (t / p.fadeIn) * p.peakAlpha;
+        } else if (t > 1 - p.fadeOut) {
+          alpha = ((1 - t) / p.fadeOut) * p.peakAlpha;
+        } else {
+          alpha = p.peakAlpha;
+        }
+        alpha = Math.max(0, alpha);
+
+        // Radial glow — soft and large
+        const r = p.size;
+        const g = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3.5);
+        g.addColorStop(0,    `hsla(${p.hue},${p.sat}%,${p.lit}%,${alpha})`);
+        g.addColorStop(0.35, `hsla(${p.hue},${p.sat}%,${p.lit}%,${alpha * 0.45})`);
+        g.addColorStop(1,    `hsla(${p.hue},${p.sat}%,${p.lit}%,0)`);
+
         pCtx.beginPath();
-        pCtx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
-
-        // Glow
-        const g = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * alpha * 2.5);
-        g.addColorStop(0,   `hsla(${p.hue},${p.sat}%,${p.lit}%,1)`);
-        g.addColorStop(0.5, `hsla(${p.hue},${p.sat}%,${p.lit}%,0.4)`);
-        g.addColorStop(1,   `hsla(${p.hue},${p.sat}%,${p.lit}%,0)`);
+        pCtx.arc(p.x, p.y, r * 3.5, 0, Math.PI * 2);
         pCtx.fillStyle = g;
         pCtx.fill();
-        pCtx.restore();
       });
 
       requestAnimationFrame(drawParticles);
@@ -339,20 +321,19 @@
     requestAnimationFrame(drawParticles);
 
     /* ═══════════════════════════════════════
-       NAV — frosted bar
+       NAV
     ═══════════════════════════════════════ */
-    const pages   = ['About Me', 'Projects', 'Skills', 'Contact'];
-    let current   = 0;
+    const pages     = ['About Me', 'Projects', 'Skills', 'Contact'];
+    let   current   = 0;
 
-    const navBar      = document.getElementById('navBar');
-    const indicator   = document.getElementById('navIndicator');
-    const btns        = document.querySelectorAll('.nav-btn');
-    const pageTitle   = document.getElementById('pageTitle');
+    const navBar    = document.getElementById('navBar');
+    const indicator = document.getElementById('navIndicator');
+    const btns      = document.querySelectorAll('.nav-btn');
+    const pageTitle = document.getElementById('pageTitle');
 
     function updateIndicator(idx) {
-      const btn  = btns[idx];
       const bar  = navBar.getBoundingClientRect();
-      const btnR = btn.getBoundingClientRect();
+      const btnR = btns[idx].getBoundingClientRect();
       indicator.style.left  = (btnR.left - bar.left) + 'px';
       indicator.style.width = btnR.width + 'px';
     }
@@ -365,11 +346,8 @@
       pageTitle.textContent = pages[idx];
     }
 
-    btns.forEach(btn => {
-      btn.addEventListener('click', () => goTo(parseInt(btn.dataset.idx)));
-    });
+    btns.forEach(btn => btn.addEventListener('click', () => goTo(+btn.dataset.idx)));
 
-    // Init indicator position after fonts load
     window.addEventListener('load', () => updateIndicator(0));
     setTimeout(() => updateIndicator(0), 100);
   </script>
