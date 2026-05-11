@@ -13,7 +13,19 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    body {
+    /* ── Full-page layout container (not fixed, so html2canvas captures it) ── */
+    #page {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Animated mesh gradient background ── */
+    #bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
       background-color: #c040e0;
       background-image:
         radial-gradient(ellipse at var(--b1x) var(--b1y), #ff4db8 0%, transparent 55%),
@@ -24,20 +36,20 @@
         radial-gradient(ellipse at var(--b6x) var(--b6y), #00eeff 0%, transparent 48%);
     }
 
-    body::before {
+    /* Grain overlay */
+    #bg::after {
       content: '';
-      position: fixed;
+      position: absolute;
       inset: 0;
-      z-index: 1;
-      opacity: 0.38;
+      opacity: 0.35;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-size: 200px 200px;
       pointer-events: none;
     }
 
-    /* ── Blue nav bar — static, always visible, NEVER changes ── */
+    /* ── Blue nav bar — absolute, centered, always static ── */
     .nav-bar {
-      position: fixed;
+      position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -62,34 +74,28 @@
       color: rgba(255, 255, 255, 0.55);
       white-space: nowrap;
       user-select: none;
-      /* No active state — bar is always static */
     }
 
-    /* ── Glass pill wrapper — handles left/width sliding ── */
-    /*    transition only on position, NOT transform                */
-    .glass-pill-wrapper {
-      position: fixed;
+    /* ── Glass pill wrapper — absolute, handles left/width slide ── */
+    .glass-wrapper {
+      position: absolute;
       top: 50%;
       height: 80px;
       z-index: 20;
       pointer-events: none;
-      /* left + width driven by JS, transition for slide */
-      transition:
-        left  0.45s cubic-bezier(0.4, 0, 0.2, 1),
-        width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
       transform: translateY(-50%);
+      transition:
+        left  0.46s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.46s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* ── Glass pill itself — handles the smoosh via scaleX/scaleY ── */
+    /* ── Glass pill — liquidGL target, handles the smoosh ── */
     .glass-pill {
       width: 100%;
       height: 100%;
       border-radius: 40px;
-      /* transform-origin center so it smooshes symmetrically */
       transform-origin: center center;
-      transform: scaleX(1) scaleY(1);
-      transition: transform 0s, border-radius 0s;
-      will-change: transform;
+      /* transitions managed fully by JS */
     }
 
     .glass-inner {
@@ -114,7 +120,7 @@
 
     .glass-label.fading { opacity: 0; }
 
-    /* ── Click overlay ── */
+    /* ── Click overlay — fixed on top, maps to nav bar position ── */
     .click-overlay {
       position: fixed;
       top: 50%;
@@ -122,7 +128,6 @@
       transform: translate(-50%, -50%);
       width: 520px;
       height: 58px;
-      border-radius: 29px;
       z-index: 999;
       display: flex;
       align-items: stretch;
@@ -140,7 +145,12 @@
 </head>
 <body>
 
-  <!-- Blue bar — fully static, never touched by JS -->
+<div id="page">
+
+  <!-- Background (registered as dynamic so glass refracts its animation) -->
+  <div id="bg"></div>
+
+  <!-- Blue bar — static, always shows all labels -->
   <div class="nav-bar" id="navBar">
     <div class="nav-item" data-idx="0">About Me</div>
     <div class="nav-item" data-idx="1">Projects</div>
@@ -148,8 +158,8 @@
     <div class="nav-item" data-idx="3">Contact</div>
   </div>
 
-  <!-- Glass wrapper moves left/width. Inner pill does the smoosh. -->
-  <div class="glass-pill-wrapper" id="glassPillWrapper">
+  <!-- Glass wrapper → pill (liquidGL target) -->
+  <div class="glass-wrapper" id="glassWrapper">
     <div class="glass-pill" id="glassPill">
       <div class="glass-inner">
         <span class="glass-label" id="glassLabel">About Me</span>
@@ -157,148 +167,163 @@
     </div>
   </div>
 
-  <!-- Invisible click zones -->
-  <div class="click-overlay">
-    <div class="click-area" data-idx="0"></div>
-    <div class="click-area" data-idx="1"></div>
-    <div class="click-area" data-idx="2"></div>
-    <div class="click-area" data-idx="3"></div>
-  </div>
+</div>
 
-  <script src="scripts/html2canvas.min.js"></script>
-  <script src="scripts/liquidGL.js"></script>
-  <script>
-    /* ── Background animation ── */
-    const basePos = [
-      [15, 30], [78, 20], [50, 70],
-      [20, 80], [75, 50], [55, 35],
-    ];
-    const blobDefs = [
-      { phase: [0.0, 1.5], speed: [0.00031, 0.00023] },
-      { phase: [2.1, 0.8], speed: [0.00027, 0.00034] },
-      { phase: [4.2, 3.1], speed: [0.00019, 0.00028] },
-      { phase: [1.0, 4.7], speed: [0.00035, 0.00021] },
-      { phase: [3.3, 2.4], speed: [0.00022, 0.00038] },
-      { phase: [5.5, 0.3], speed: [0.00040, 0.00018] },
-    ];
+<!-- Click zones (fixed, sits above everything) -->
+<div class="click-overlay">
+  <div class="click-area" data-idx="0"></div>
+  <div class="click-area" data-idx="1"></div>
+  <div class="click-area" data-idx="2"></div>
+  <div class="click-area" data-idx="3"></div>
+</div>
 
-    blobDefs.forEach((_, i) => {
-      document.body.style.setProperty(`--b${i+1}x`, `${basePos[i][0]}%`);
-      document.body.style.setProperty(`--b${i+1}y`, `${basePos[i][1]}%`);
+<script src="scripts/html2canvas.min.js"></script>
+<script src="scripts/liquidGL.js"></script>
+<script>
+  /* ── Background animation (CSS custom props) ── */
+  const basePos = [
+    [15, 30], [78, 20], [50, 70],
+    [20, 80], [75, 50], [55, 35],
+  ];
+  const blobDefs = [
+    { phase: [0.0, 1.5], speed: [0.00031, 0.00023] },
+    { phase: [2.1, 0.8], speed: [0.00027, 0.00034] },
+    { phase: [4.2, 3.1], speed: [0.00019, 0.00028] },
+    { phase: [1.0, 4.7], speed: [0.00035, 0.00021] },
+    { phase: [3.3, 2.4], speed: [0.00022, 0.00038] },
+    { phase: [5.5, 0.3], speed: [0.00040, 0.00018] },
+  ];
+  const bg = document.getElementById('bg');
+
+  blobDefs.forEach((_, i) => {
+    bg.style.setProperty(`--b${i+1}x`, `${basePos[i][0]}%`);
+    bg.style.setProperty(`--b${i+1}y`, `${basePos[i][1]}%`);
+  });
+
+  function animBg(t) {
+    blobDefs.forEach((b, i) => {
+      const nx = basePos[i][0] + Math.sin(t * b.speed[0] + b.phase[0]) * 22;
+      const ny = basePos[i][1] + Math.cos(t * b.speed[1] + b.phase[1]) * 18;
+      bg.style.setProperty(`--b${i+1}x`, `${nx}%`);
+      bg.style.setProperty(`--b${i+1}y`, `${ny}%`);
     });
-
-    function animBg(t) {
-      blobDefs.forEach((b, i) => {
-        const nx = basePos[i][0] + Math.sin(t * b.speed[0] + b.phase[0]) * 22;
-        const ny = basePos[i][1] + Math.cos(t * b.speed[1] + b.phase[1]) * 18;
-        document.body.style.setProperty(`--b${i+1}x`, `${nx}%`);
-        document.body.style.setProperty(`--b${i+1}y`, `${ny}%`);
-      });
-      requestAnimationFrame(animBg);
-    }
     requestAnimationFrame(animBg);
+  }
+  requestAnimationFrame(animBg);
 
-    /* ── Nav state ── */
-    const pages     = ['About Me', 'Projects', 'Skills', 'Contact'];
-    let   current   = 0;
-    let   animating = false;
+  /* ── Nav ── */
+  const pages      = ['About Me', 'Projects', 'Skills', 'Contact'];
+  let   current    = 0;
+  let   animating  = false;
 
-    const navItems    = document.querySelectorAll('.nav-item');
-    const wrapper     = document.getElementById('glassPillWrapper');
-    const pill        = document.getElementById('glassPill');
-    const glassLabel  = document.getElementById('glassLabel');
-    const clickAreas  = document.querySelectorAll('.click-area');
+  const navBar     = document.getElementById('navBar');
+  const navItems   = document.querySelectorAll('.nav-item');
+  const wrapper    = document.getElementById('glassWrapper');
+  const pill       = document.getElementById('glassPill');
+  const glassLabel = document.getElementById('glassLabel');
+  const clickAreas = document.querySelectorAll('.click-area');
 
-    const PAD = 14; // how much glass overhangs each side of the nav item
+  const PAD = 14;
 
-    function getItemRect(idx) {
-      return navItems[idx].getBoundingClientRect();
-    }
+  function snapPill(idx) {
+    const r = navItems[idx].getBoundingClientRect();
+    const barRect = navBar.getBoundingClientRect();
+    // Use offsets relative to #page (since wrapper is absolute inside it)
+    const pageRect = document.getElementById('page').getBoundingClientRect();
+    const itemLeft = r.left - pageRect.left;
+    const itemTop  = r.top  - pageRect.top + r.height / 2;
 
-    function snapPill(idx) {
-      const r = getItemRect(idx);
-      wrapper.style.transition = 'none';
-      wrapper.style.left  = (r.left - PAD) + 'px';
+    // Temporarily disable transitions
+    const prevT = wrapper.style.transition;
+    wrapper.style.transition = 'none';
+    pill.style.transition = 'none';
+
+    wrapper.style.left  = (itemLeft - PAD) + 'px';
+    wrapper.style.width = (r.width + PAD * 2) + 'px';
+    // Vertically center the wrapper on the item center
+    wrapper.style.top   = itemTop + 'px';
+
+    pill.style.transform    = 'scaleX(1) scaleY(1)';
+    pill.style.borderRadius = '40px';
+    pill.offsetHeight; // force reflow
+
+    wrapper.style.transition = prevT;
+  }
+
+  function goTo(idx) {
+    if (idx === current || animating) return;
+    animating = true;
+    current = idx;
+
+    const r = navItems[idx].getBoundingClientRect();
+    const pageRect = document.getElementById('page').getBoundingClientRect();
+    const itemLeft = r.left - pageRect.left;
+
+    // 1. Smoosh: squish tall → wide (taffy stretch)
+    pill.style.transition = 'transform 0.18s cubic-bezier(0.4,0,0.6,1), border-radius 0.18s ease';
+    pill.style.transform  = 'scaleX(1.14) scaleY(0.68)';
+    pill.style.borderRadius = '55px';
+
+    glassLabel.classList.add('fading');
+
+    // 2. Slide to new position
+    setTimeout(() => {
+      wrapper.style.left  = (itemLeft - PAD) + 'px';
       wrapper.style.width = (r.width + PAD * 2) + 'px';
-      pill.style.transition = 'none';
-      pill.style.transform = 'scaleX(1) scaleY(1)';
+    }, 55);
+
+    // 3. Bounce — arrive tall and narrow
+    setTimeout(() => {
+      pill.style.transition = 'transform 0.24s cubic-bezier(0.18,1.5,0.4,1), border-radius 0.24s ease';
+      pill.style.transform  = 'scaleX(0.90) scaleY(1.14)';
+      pill.style.borderRadius = '46px';
+    }, 290);
+
+    // 4. Settle
+    setTimeout(() => {
+      pill.style.transition = 'transform 0.18s cubic-bezier(0.4,0,0.2,1), border-radius 0.18s ease';
+      pill.style.transform  = 'scaleX(1) scaleY(1)';
       pill.style.borderRadius = '40px';
-      pill.offsetHeight; // force reflow
-      wrapper.style.transition = '';
-    }
+      glassLabel.textContent = pages[idx];
+      glassLabel.classList.remove('fading');
+      animating = false;
+    }, 480);
+  }
 
-    function goTo(idx) {
-      if (idx === current || animating) return;
-      animating = true;
-      current = idx;
+  clickAreas.forEach(area => {
+    area.addEventListener('click', () => goTo(parseInt(area.dataset.idx)));
+  });
 
-      const r = getItemRect(idx);
-      const targetLeft  = r.left - PAD;
-      const targetWidth = r.width + PAD * 2;
-
-      /* ── Smoosh phase ── */
-      // Squish: scale down vertically, stretch horizontally (like taffy pulling)
-      pill.style.transition = 'transform 0.18s cubic-bezier(0.4,0,0.6,1), border-radius 0.18s ease';
-      pill.style.transform  = 'scaleX(1.12) scaleY(0.72)';
-      pill.style.borderRadius = '50px';
-
-      // Label fade out
-      glassLabel.classList.add('fading');
-
-      // Slide wrapper to new position (starts immediately, overlaps with smoosh)
-      setTimeout(() => {
-        wrapper.style.left  = targetLeft + 'px';
-        wrapper.style.width = targetWidth + 'px';
-      }, 60);
-
-      /* ── Unsmoosh phase — arrives at destination ── */
-      setTimeout(() => {
-        pill.style.transition = 'transform 0.22s cubic-bezier(0.2,1.4,0.4,1), border-radius 0.22s ease';
-        pill.style.transform  = 'scaleX(0.92) scaleY(1.1)';
-        pill.style.borderRadius = '44px';
-      }, 280);
-
-      // Settle
-      setTimeout(() => {
-        pill.style.transition = 'transform 0.18s cubic-bezier(0.4,0,0.2,1), border-radius 0.18s ease';
-        pill.style.transform  = 'scaleX(1) scaleY(1)';
-        pill.style.borderRadius = '40px';
-
-        // Label fade in with new text
-        glassLabel.textContent = pages[idx];
-        glassLabel.classList.remove('fading');
-
-        animating = false;
-      }, 460);
-    }
-
-    clickAreas.forEach(area => {
-      area.addEventListener('click', () => goTo(parseInt(area.dataset.idx)));
-    });
-
-    /* ── Init liquidGL ── */
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        snapPill(0);
-
-        liquidGL({
-          target: '.glass-pill',
-          refraction: 0.03,
-          bevelDepth: 0.06,
-          bevelWidth: 0.22,
-          frost: 0,
-          shadow: true,
-          specular: true,
-          tilt: false,
-          reveal: 'fade',
-        });
-      }, 200);
-    });
-
-    window.addEventListener('load', () => {
+  /* ── Init liquidGL ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    // Small delay so background paints before snapshot
+    setTimeout(() => {
       snapPill(0);
-      liquidGL.syncWith();
-    });
-  </script>
+
+      const glassEffect = liquidGL({
+        snapshot: '#page',
+        target: '.glass-pill',
+        resolution: 2.0,
+        refraction: 0.04,
+        bevelDepth: 0.06,
+        bevelWidth: 0.22,
+        frost: 0,
+        shadow: true,
+        specular: true,
+        tilt: false,
+        reveal: 'fade',
+      });
+
+      // Register the animated background so glass refracts it in real-time
+      liquidGL.registerDynamic('#bg');
+
+    }, 150);
+  });
+
+  window.addEventListener('load', () => {
+    snapPill(0);
+    liquidGL.syncWith();
+  });
+</script>
 </body>
 </html>
