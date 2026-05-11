@@ -22,7 +22,8 @@
       width: 100%; height: 100%;
       overflow: hidden;
       font-family: 'DM Sans', sans-serif;
-      cursor: none;
+      /* Restored default cursor */
+      cursor: default;
     }
 
     body {
@@ -36,6 +37,7 @@
         radial-gradient(ellipse at var(--b6x) var(--b6y), #00eeff 0%, transparent 48%);
     }
 
+    /* Grainy Texture Overlay */
     body::before {
       content: '';
       position: fixed; inset: 0;
@@ -45,21 +47,6 @@
       pointer-events: none;
     }
 
-    #particles { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
-
-    #cursor {
-      position: fixed;
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: rgba(255,255,255,1);
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      pointer-events: none;
-      mix-blend-mode: difference;
-      transition: transform 0.1s ease-out;
-    }
-
-    /* Updated: Bottom Bar Positioning */
     .nav-wrap {
       position: fixed;
       bottom: 40px; 
@@ -93,17 +80,16 @@
     .nav-btn {
       position: relative; z-index: 1;
       display: flex; align-items: center; gap: 8px;
-      padding: 10px 20px;
+      padding: 10px 24px;
       border-radius: 40px; border: none; background: transparent;
       color: var(--text-dim);
       font-family: 'DM Sans', sans-serif;
       font-size: 0.85rem; font-weight: 500;
-      cursor: none; white-space: nowrap;
+      cursor: pointer; /* Restored pointer cursor for buttons */
+      white-space: nowrap;
       transition: color 0.3s;
     }
     .nav-btn.active { color: var(--text-bright); }
-
-    .nav-icon { width: 16px; height: 16px; opacity: 0.7; flex-shrink: 0; }
 
     .page-content {
       position: fixed; inset: 0; z-index: 3;
@@ -125,9 +111,6 @@
 </head>
 <body>
 
-  <canvas id="particles"></canvas>
-  <div id="cursor"></div>
-
   <div class="page-content">
     <div class="page-title" id="pageTitle">About Me</div>
     <div class="page-sub">Creative Portfolio</div>
@@ -144,7 +127,7 @@
   </div>
 
   <script>
-    /* --- Background Animation --- */
+    /* --- Background Animation Logic --- */
     const basePos = [[15,30], [78,20], [50,70], [20,80], [75,50], [55,35]];
     const blobDefs = [
       { phase: [0.0, 1.5], speed: [0.0004, 0.0003] },
@@ -166,108 +149,42 @@
     }
     requestAnimationFrame(animBg);
 
-    /* --- Magnetic Particles --- */
-    const canvas = document.getElementById('particles');
-    const ctx = canvas.getContext('2d');
-    let mouse = { x: -100, y: -100 };
-    let particles = [];
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    window.addEventListener('mousemove', e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-      const cur = document.getElementById('cursor');
-      cur.style.left = e.clientX + 'px';
-      cur.style.top = e.clientY + 'px';
-    });
-
-    class Particle {
-      constructor() {
-        this.reset();
-      }
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-        this.size = Math.random() * 4 + 2;
-        this.life = 1; 
-        this.decay = 0.005 + Math.random() * 0.01;
-        this.color = `hsla(${200 + Math.random() * 60}, 100%, 80%,`;
-      }
-      update() {
-        // Magnetic pull logic
-        let dx = mouse.x - this.x;
-        let dy = mouse.y - this.y;
-        let dist = Math.sqrt(dx*dx + dy*dy);
-        let force = Math.max(0, (200 - dist) / 200); 
-        
-        this.vx += (dx / dist) * force * 0.5;
-        this.vy += (dy / dist) * force * 0.5;
-
-        // Friction to keep it snappy but controlled
-        this.vx *= 0.95;
-        this.vy *= 0.95;
-
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life -= this.decay;
-
-        if (this.life <= 0) this.reset();
-      }
-      draw() {
-        ctx.beginPath();
-        // Sharper gradient: Smaller radius (size * 1.5 instead of 3.5)
-        const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 1.5);
-        g.addColorStop(0, this.color + this.life * 0.8 + ')');
-        g.addColorStop(1, this.color + '0)');
-        ctx.fillStyle = g;
-        ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    for(let i=0; i<15; i++) particles.push(new Particle());
-
-    function loop() {
-      ctx.clearRect(0,0,canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.update();
-        p.draw();
-      });
-      requestAnimationFrame(loop);
-    }
-    loop();
-
     /* --- Navigation Logic --- */
     const pages = ['About Me', 'Projects', 'Skills', 'Contact'];
-    let current = 0;
     const btns = document.querySelectorAll('.nav-btn');
     const indicator = document.getElementById('navIndicator');
+    const titleEl = document.getElementById('pageTitle');
 
     function updateIndicator(idx) {
       const btn = btns[idx];
-      indicator.style.left = btn.offsetLeft + 'px';
-      indicator.style.width = btn.offsetWidth + 'px';
+      if (btn) {
+        indicator.style.left = btn.offsetLeft + 'px';
+        indicator.style.width = btn.offsetWidth + 'px';
+      }
     }
 
     btns.forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.idx);
+        
+        // Update Active States
         btns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById('pageTitle').textContent = pages[idx];
+        
+        // Update Title
+        titleEl.textContent = pages[idx];
+        
+        // Move Glass Indicator
         updateIndicator(idx);
       });
     });
 
+    // Handle initial state and responsive resizing
     window.onload = () => updateIndicator(0);
+    window.addEventListener('resize', () => {
+      const activeBtn = document.querySelector('.nav-btn.active');
+      if (activeBtn) updateIndicator(parseInt(activeBtn.dataset.idx));
+    });
   </script>
 </body>
 </html>
