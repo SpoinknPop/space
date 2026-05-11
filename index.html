@@ -61,7 +61,8 @@
       display: flex;
       flex-direction: column;
       gap: 2rem;
-      margin-top: -8vh;
+      /* Adjusted from -8vh to -12vh to move the content up slightly */
+      margin-top: -12vh;
     }
 
     .hero-section {
@@ -138,6 +139,39 @@
     .value-cell {
         color: rgba(255, 255, 255, 0.9);
         font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Clock Styling */
+    .clock-container {
+      margin-bottom: 1rem;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      backdrop-filter: blur(5px);
+      width: 100%;
+    }
+
+    #clock-time {
+      font-family: 'DM Sans', monospace;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+    }
+
+    .clock-label {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+      line-height: 1;
+      margin-bottom: 2px;
     }
 
     .social-column {
@@ -302,6 +336,7 @@
             <table class="info-table">
               <tr><td class="label-cell">Function</td><td class="value-cell">TiN</td></tr>
               <tr><td class="label-cell">Enneagram</td><td class="value-cell">594</td></tr>
+              <tr><td class="label-cell">Chromatype</td><td class="value-cell">AmbCyaCor</td></tr>
               <tr><td class="label-cell">Temperament</td><td class="value-cell">Phlegmatic</td></tr>
               <tr><td class="label-cell">Big Five</td><td class="value-cell">rcUe[I]</td></tr>
               <tr><td class="label-cell">Psychosophy</td><td class="value-cell">LVEF<sup>4343</sup></td></tr>
@@ -309,27 +344,37 @@
             </table>
           </section>
           
-          <aside class="social-column">
-            <a href="#" target="_blank" class="social-btn btn-spotify">
-              <span class="btn-label"><img src="icons/spotify.png" class="btn-icon-png" alt="Spotify"> Spotify</span>
-              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
-            </a>
-            <a href="https://discord.gg/5QAyBHYbEM" target="_blank" class="social-btn btn-discord">
-              <span class="btn-label"><img src="icons/discord.png" class="btn-icon-png" alt="Discord"> Discord</span>
-              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
-            </a>
-            <a href="https://github.com/SpoinknPop" target="_blank" class="social-btn btn-github">
-              <span class="btn-label"><img src="icons/github.png" class="btn-icon-png" alt="GitHub"> GitHub</span>
-              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
-            </a>
-            <a href="https://tracker.gg/valorant/profile/riot/Spoink%23123" target="_blank" class="social-btn btn-valorant">
-              <span class="btn-label"><img src="icons/valorant.png" class="btn-icon-png" alt="Valorant"> Valorant</span>
-              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
-            </a>
-            <a href="https://www.roblox.com/users/2036318698/profile" target="_blank" class="social-btn btn-roblox">
-              <span class="btn-label"><img src="icons/roblox.png" class="btn-icon-png" alt="Roblox"> Roblox</span>
-              <span class="btn-arrow"><i data-lucide="external-link"></i></span>
-            </a>
+          <aside class="social-side-col">
+            <div class="clock-container">
+              <i data-lucide="clock" style="width: 16px; height: 16px; color: rgba(255,255,255,0.6);"></i>
+              <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <span class="clock-label">Local Time (EST)</span>
+                <span id="clock-time">00:00:00 AM</span>
+              </div>
+            </div>
+            
+            <div class="social-column">
+              <a href="#" target="_blank" class="social-btn btn-spotify">
+                <span class="btn-label"><img src="icons/spotify.png" class="btn-icon-png" alt="Spotify"> Spotify</span>
+                <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+              </a>
+              <a href="https://discord.gg/5QAyBHYbEM" target="_blank" class="social-btn btn-discord">
+                <span class="btn-label"><img src="icons/discord.png" class="btn-icon-png" alt="Discord"> Discord</span>
+                <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+              </a>
+              <a href="https://github.com/SpoinknPop" target="_blank" class="social-btn btn-github">
+                <span class="btn-label"><img src="icons/github.png" class="btn-icon-png" alt="GitHub"> GitHub</span>
+                <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+              </a>
+              <a href="https://tracker.gg/valorant/profile/riot/Spoink%23123" target="_blank" class="social-btn btn-valorant">
+                <span class="btn-label"><img src="icons/valorant.png" class="btn-icon-png" alt="Valorant"> Valorant</span>
+                <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+              </a>
+              <a href="https://www.roblox.com/users/2036318698/profile" target="_blank" class="social-btn btn-roblox">
+                <span class="btn-label"><img src="icons/roblox.png" class="btn-icon-png" alt="Roblox"> Roblox</span>
+                <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+              </a>
+            </div>
           </aside>
         </div>
       `,
@@ -337,6 +382,24 @@
       2: `<div class="grid-view"><div class="card"><h3>Skills</h3><p>Skill list here.</p></div></div>`,
       3: `<div class="about-text"><p>Contact me at hello@example.com</p></div>`
     };
+
+    /* --- Clock Logic --- */
+    function updateClock() {
+      const clockEl = document.getElementById('clock-time');
+      if (!clockEl) return;
+      
+      const options = {
+        timeZone: 'America/New_York',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      };
+      
+      const estTime = new Intl.DateTimeFormat('en-US', options).format(new Date());
+      clockEl.textContent = estTime;
+    }
+    setInterval(updateClock, 1000);
 
     /* --- Background Animation Logic --- */
     const basePos = [[15,30], [78,20], [50,70], [20,80], [75,50], [55,35]];
@@ -384,6 +447,7 @@
         titleEl.textContent = pages[idx];
         contentContainer.innerHTML = contentData[idx];
         lucide.createIcons();
+        if (idx === 0) updateClock(); 
         contentContainer.style.opacity = 1;
         contentContainer.style.transform = 'translateY(0px)';
         titleEl.style.opacity = 1;
@@ -404,6 +468,7 @@
       updateIndicator(0);
       contentContainer.innerHTML = contentData[0];
       lucide.createIcons();
+      updateClock();
     };
 
     window.addEventListener('resize', () => {
