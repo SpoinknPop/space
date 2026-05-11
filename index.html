@@ -22,8 +22,9 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      /* Removed overflow: hidden to allow natural scrolling on mobile */
       font-family: 'DM Sans', sans-serif;
       cursor: default;
     }
@@ -40,6 +41,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background-attachment: fixed; /* Keeps background static while scrolling */
     }
 
     /* Grainy Texture Overlay */
@@ -61,7 +63,8 @@
       display: flex;
       flex-direction: column;
       gap: 2rem;
-      margin-top: -12vh;
+      margin-top: -5vh; /* Adjusted for better vertical balance */
+      padding: 40px 0 120px 0; /* Extra bottom padding for nav bar clearance */
     }
 
     .hero-section {
@@ -183,13 +186,13 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      margin-bottom: 2rem;
     }
     
     .project-card:hover {
       transform: translateY(-5px);
     }
 
-    /* Updated banner container to maintain exact image aspect ratio */
     .project-banner-container {
       width: 100%;
       aspect-ratio: 1840 / 838;
@@ -204,7 +207,7 @@
     .project-banner-img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* Ensures the entire image is shown without cropping */
+      object-fit: contain;
       transition: transform 0.5s ease;
     }
 
@@ -366,9 +369,18 @@
 
     /* Mobile Adaptability */
     @media (max-width: 768px) {
+      body { 
+        align-items: flex-start;
+        height: auto; /* Allow height to expand for scrolling */
+        overflow-y: auto; /* Enable global scroll */
+      }
       .content-grid { grid-template-columns: 1fr; gap: 2rem; }
-      .page-content { padding-bottom: 120px; overflow-y: auto; max-height: 85vh; margin-top: 0; }
-      body { align-items: flex-start; padding-top: 40px; }
+      .page-content { 
+        padding: 40px 0 160px 0; /* More padding for mobile nav */
+        margin-top: 0;
+        width: 92%;
+        height: auto;
+      }
       
       .nav-wrap { bottom: 20px; width: 95vw; }
       .nav-bar { gap: 2px; padding: 4px; justify-content: space-around; }
@@ -478,6 +490,8 @@
                 </div>
             </div>
           </div>
+          <!-- Sample spacing if you add more projects -->
+          <div style="height: 1px;"></div>
         </div>
       `,
       2: `<div class="grid-view" style="padding: 20px; color: white;"><div class="card"><h3>Game Design</h3><p>UI/UX, Level Design, Character Storyboarding.</p></div></div>`,
@@ -549,6 +563,12 @@
         contentContainer.innerHTML = contentData[idx];
         lucide.createIcons();
         if (idx === 0) updateClock(); 
+        
+        // On mobile, scroll to top when switching pages
+        if (window.innerWidth <= 768) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
         contentContainer.style.opacity = 1;
         contentContainer.style.transform = 'translateY(0px)';
         titleEl.style.opacity = 1;
