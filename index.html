@@ -1,152 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noisy Mesh Gradient</title>
-    <style>
-        /* Base Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #222; /* Fallback dark background */
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+    body {
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-        /* 1. The Mesh Gradient Container */
-        .mesh-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            z-index: 1;
-            /* A subtle base gradient to tie it all together */
-            background: linear-gradient(135deg, #a361e6, #4b369d);
-        }
+    /* Absolute so html2canvas captures it (fixed elements are skipped) */
+    #bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
 
-        /* 2. The Color Orbs */
-        .color-orb {
-            position: absolute;
-            border-radius: 50%;
-            /* This massive blur is what blends the shapes into a smooth mesh gradient */
-            filter: blur(120px); 
-            opacity: 0.9;
-            /* Hardware acceleration for smoother animation */
-            will-change: transform; 
-        }
+    /* Solid blue bar */
+    .nav-bar {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 540px;
+      height: 64px;
+      border-radius: 32px;
+      background: #1d4ed8;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+    }
 
-        /* Matching the colors from your image */
-        .orb-pink {
-            top: -20%;
-            left: -10%;
-            width: 60vw;
-            height: 60vw;
-            background: #ff529a;
-            animation: moveOrb1 15s infinite alternate ease-in-out;
-        }
+    .nav-item {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.5);
+      white-space: nowrap;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
 
-        .orb-yellow {
-            top: -10%;
-            right: -10%;
-            width: 55vw;
-            height: 55vw;
-            background: #d4e845;
-            animation: moveOrb2 18s infinite alternate ease-in-out;
-        }
+    /* Hide the label that's under the glass */
+    .nav-item.active {
+      color: rgba(255, 255, 255, 0);
+    }
 
-        .orb-blue {
-            bottom: -20%;
-            left: -10%;
-            width: 65vw;
-            height: 65vw;
-            background: #4732f1;
-            animation: moveOrb3 20s infinite alternate ease-in-out;
-        }
+    /* Glass pill — the liquidGL target */
+    .glass-pill {
+      position: fixed;
+      top: 50%;
+      height: 56px;
+      border-radius: 28px;
+      z-index: 100;
+      transform: translateY(-50%);
+      /* left + width set by JS */
+      transition:
+        left 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        border-radius 0.22s ease;
+    }
 
-        .orb-cyan {
-            bottom: -15%;
-            right: -15%;
-            width: 60vw;
-            height: 60vw;
-            background: #00d4ff;
-            animation: moveOrb4 17s infinite alternate ease-in-out;
-        }
+    .glass-inner {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
 
-        /* 3. The Animations */
-        @keyframes moveOrb1 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(15vw, 15vh) scale(1.1); }
-        }
-        @keyframes moveOrb2 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(-10vw, 20vh) scale(1.2); }
-        }
-        @keyframes moveOrb3 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(20vw, -10vh) scale(1.15); }
-        }
-        @keyframes moveOrb4 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(-15vw, -15vh) scale(1.05); }
-        }
+    .glass-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      transition: opacity 0.15s ease;
+    }
 
-        /* 4. The Noise Overlay */
-        .noise-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-            /* SVG fractal noise generated directly in the CSS */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            /* Increased opacity and overlay blend mode to match your reference */
-            opacity: 0.35; 
-            mix-blend-mode: overlay;
-        }
+    .glass-label.fading { opacity: 0; }
 
-        /* Sample Foreground Content */
-        .content {
-            position: relative;
-            z-index: 3;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: white;
-        }
+    /* Transparent click overlay — same dimensions as nav bar, on top of everything */
+    .click-overlay {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 540px;
+      height: 64px;
+      border-radius: 32px;
+      z-index: 999;
+      display: flex;
+      align-items: stretch;
+    }
 
-        h1 {
-            font-size: 3rem;
-            letter-spacing: 1px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-    </style>
+    .click-area {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .nav-bar,
+      .click-overlay { width: 92vw; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="mesh-container">
-        <div class="color-orb orb-pink"></div>
-        <div class="color-orb orb-yellow"></div>
-        <div class="color-orb orb-blue"></div>
-        <div class="color-orb orb-cyan"></div>
+  <!-- Animated background canvas (absolute = captured by html2canvas) -->
+  <canvas id="bg"></canvas>
+
+  <!-- Solid blue nav bar with labels -->
+  <div class="nav-bar" id="navBar">
+    <div class="nav-item active" data-idx="0">About Me</div>
+    <div class="nav-item"        data-idx="1">Projects</div>
+    <div class="nav-item"        data-idx="2">Skills</div>
+    <div class="nav-item"        data-idx="3">Contact</div>
+  </div>
+
+  <!-- Glass pill — this is what liquidGL targets -->
+  <div class="glass-pill" id="glassPill">
+    <div class="glass-inner">
+      <span class="glass-label" id="glassLabel">About Me</span>
     </div>
+  </div>
 
-    <div class="noise-overlay"></div>
+  <!-- Invisible click layer on top of everything -->
+  <div class="click-overlay">
+    <div class="click-area" data-idx="0"></div>
+    <div class="click-area" data-idx="1"></div>
+    <div class="click-area" data-idx="2"></div>
+    <div class="click-area" data-idx="3"></div>
+  </div>
 
-    <div class="content">
-        <h1>Mesh Gradient</h1>
-    </div>
+  <script src="scripts/html2canvas.min.js"></script>
+  <script src="scripts/liquidGL.js"></script>
+  <script>
+    /* ── Animated background ── */
+    const canvas = document.getElementById('bg');
+    const ctx    = canvas.getContext('2d');
 
+    function resizeBg() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeBg();
+    window.addEventListener('resize', resizeBg);
+
+    const blobs = [
+      { nx: 0.15, ny: 0.30, r: 0.48, hue: 260, sx: 0.00031, sy: 0.00023, px: 0.0, py: 1.5 },
+      { nx: 0.78, ny: 0.65, r: 0.42, hue: 315, sx: 0.00027, sy: 0.00034, px: 2.1, py: 0.8 },
+      { nx: 0.50, ny: 0.50, r: 0.36, hue: 188, sx: 0.00019, sy: 0.00028, px: 4.2, py: 3.1 },
+      { nx: 0.28, ny: 0.78, r: 0.40, hue:  42, sx: 0.00035, sy: 0.00021, px: 1.0, py: 4.7 },
+      { nx: 0.72, ny: 0.22, r: 0.34, hue: 158, sx: 0.00022, sy: 0.00038, px: 3.3, py: 2.4 },
+      { nx: 0.55, ny: 0.62, r: 0.30, hue: 208, sx: 0.00040, sy: 0.00018, px: 5.5, py: 0.3 },
+    ];
+
+    function drawBg(t) {
+      const w = canvas.width, h = canvas.height;
+
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#07071a';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.globalCompositeOperation = 'screen';
+      blobs.forEach(b => {
+        const hue = (b.hue + t * 0.018) % 360;
+        const cx  = (b.nx + Math.sin(t * b.sx + b.px) * 0.20) * w;
+        const cy  = (b.ny + Math.cos(t * b.sy + b.py) * 0.16) * h;
+        const rad = b.r * Math.min(w, h);
+        const g   = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+        g.addColorStop(0,   `hsla(${hue}, 88%, 68%, 0.80)`);
+        g.addColorStop(0.5, `hsla(${hue}, 82%, 58%, 0.35)`);
+        g.addColorStop(1,   `hsla(${hue}, 75%, 50%, 0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.globalCompositeOperation = 'source-over';
+      requestAnimationFrame(drawBg);
+    }
+
+    requestAnimationFrame(drawBg);
+
+    /* ── Nav logic ── */
+    const pages     = ['About Me', 'Projects', 'Skills', 'Contact'];
+    let   current   = 0;
+
+    const pill       = document.getElementById('glassPill');
+    const glassLabel = document.getElementById('glassLabel');
+    const navItems   = document.querySelectorAll('.nav-item');
+    const clickAreas = document.querySelectorAll('.click-area');
+
+    function positionPill(idx, instant) {
+      const rect = navItems[idx].getBoundingClientRect();
+      if (instant) {
+        const prev = pill.style.transition;
+        pill.style.transition = 'none';
+        pill.style.left  = rect.left + 'px';
+        pill.style.width = rect.width + 'px';
+        pill.offsetHeight; // force reflow
+        pill.style.transition = prev;
+      } else {
+        pill.style.left  = rect.left + 'px';
+        pill.style.width = rect.width + 'px';
+      }
+    }
+
+    function goTo(idx) {
+      if (idx === current) return;
+      current = idx;
+
+      // Smoosh: squish border-radius as it launches
+      pill.style.borderRadius = '9px';
+
+      // Slight delay then slide to new position
+      setTimeout(() => positionPill(idx, false), 55);
+
+      // Overshoot round as it lands
+      setTimeout(() => { pill.style.borderRadius = '36px'; }, 370);
+      // Settle back to normal
+      setTimeout(() => { pill.style.borderRadius = '28px'; }, 510);
+
+      // Label crossfade
+      glassLabel.classList.add('fading');
+      setTimeout(() => {
+        glassLabel.textContent = pages[idx];
+        glassLabel.classList.remove('fading');
+      }, 180);
+
+      // Update bar labels (active one goes invisible, covered by glass)
+      navItems.forEach((el, i) => el.classList.toggle('active', i === idx));
+    }
+
+    clickAreas.forEach(area => {
+      area.addEventListener('click', () => goTo(parseInt(area.dataset.idx)));
+    });
+
+    /* ── Init liquidGL ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      positionPill(0, true);
+
+      liquidGL({
+        target: '.glass-pill',
+        refraction: 0,
+        bevelDepth: 0.052,
+        bevelWidth: 0.211,
+        frost: 2,
+        shadow: true,
+        specular: true,
+        tilt: false,
+        reveal: 'fade',
+      });
+    });
+
+    window.addEventListener('load', () => {
+      positionPill(0, true);
+      liquidGL.syncWith();
+    });
+  </script>
 </body>
 </html>
