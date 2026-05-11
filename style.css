@@ -1,0 +1,66 @@
+/* 2. The Color Orbs */
+        .color-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px); 
+            opacity: 0.9;
+            will-change: transform; 
+        }
+
+        .orb-pink {
+            top: -20%;
+            left: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: #ff529a;
+            /* Sped up to 4s */
+            animation: moveOrb1 4s infinite alternate ease-in-out;
+        }
+
+        .orb-yellow {
+            top: -10%;
+            right: -10%;
+            width: 55vw;
+            height: 55vw;
+            background: #d4e845;
+            /* Sped up to 5s */
+            animation: moveOrb2 5s infinite alternate ease-in-out;
+        }
+
+        .orb-blue {
+            bottom: -20%;
+            left: -10%;
+            width: 65vw;
+            height: 65vw;
+            background: #4732f1;
+            /* Sped up to 6s */
+            animation: moveOrb3 6s infinite alternate ease-in-out;
+        }
+
+        .orb-cyan {
+            bottom: -15%;
+            right: -15%;
+            width: 60vw;
+            height: 60vw;
+            background: #00d4ff;
+            /* Sped up to 7s */
+            animation: moveOrb4 7s infinite alternate ease-in-out;
+        }
+
+        /* 3. The Animations (Increased travel distances) */
+        @keyframes moveOrb1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30vw, 25vh) scale(1.2); }
+        }
+        @keyframes moveOrb2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-25vw, 30vh) scale(1.3); }
+        }
+        @keyframes moveOrb3 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(35vw, -20vh) scale(1.25); }
+        }
+        @keyframes moveOrb4 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-30vw, -25vh) scale(1.15); }
+        }
