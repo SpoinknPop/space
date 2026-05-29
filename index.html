@@ -290,7 +290,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      margin-bottom: 0; /* Changed from 2rem to allow grid layout to manage spacing */
+      margin-bottom: 0; /* Grid layout manages spacing */
     }
 
     .project-card:hover { transform: translateY(-5px); }
@@ -443,10 +443,7 @@
     .btn-passportdex { background-color: #4b4d62; background-image: linear-gradient(135deg, #bbbdcf 0%, #1a1a1e 100%); color: #ffffff !important; }
     
     /* Clean, premium Google color gradient starting with a much stronger red phase and finishing with Blue */
-    .btn-gmail { 
-      background-color: #4285F4; 
-      background-image: linear-gradient(135deg, #ea4335 0%, #ea4335 20%, #fbbc05 50%, #34a853 78%, #4285f4 100%); 
-    }
+    .btn-gmail    { background-color: #4285F4; background-image: linear-gradient(135deg, #ea4335 0%, #ea4335 20%, #fbbc05 50%, #34a853 78%, #4285f4 100%); }
 
     .btn-label { display: flex; align-items: center; gap: 14px; z-index: 2; }
     .btn-arrow  { opacity: 0.7; font-size: 0.8rem; z-index: 2; display: flex; align-items: center; }
@@ -672,6 +669,10 @@
             <p class="intro-para">
               ᯓ★ Hello! You can call me Ace or Spoink :D I'm currently studying game development and design in high school. My interests include linguistics, crochet, typology, and I'm a superfan of Mitski :3
             </p>
+            
+            <!-- Typology Header added here -->
+            <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: #fff; margin-top: 2rem; margin-bottom: 0.75rem;">Typology</h3>
+            
             <table class="info-table">
               <tr><td class="label-cell">Function</td><td class="value-cell">TiN</td></tr>
               <tr><td class="label-cell">Enneagram</td><td class="value-cell">594</td></tr>
@@ -690,7 +691,7 @@
                 <span id="clock-time">00:00:00 AM</span>
               </div>
             </div>
-            <!-- Restored original PNG social links layout + newly integrated Gmail Contact button with PNG icon -->
+            <!-- PNG social links layout + integrated Gmail Contact button with PNG icon -->
             <div class="social-column">
               <a href="mailto:credland09@gmail.com" target="_blank" class="social-btn btn-gmail">
                 <span class="btn-label">
@@ -731,7 +732,6 @@
           <!-- Visceria Project -->
           <div class="project-card">
             <div class="project-banner-container">
-              <!-- Visual backup text inside simple canvas backings -->
               <div class="project-banner-fallback">VISCERIA</div>
               <img src="icons/visceria_banner.webp" class="project-banner-img" alt="Visceria Banner" onerror="this.style.opacity='0'">
             </div>
@@ -826,7 +826,6 @@
         lucide.createIcons();
         if (idx === 0) updateClock();
 
-        /* Toggle wide layout class for Projects (idx 1) and Assignments (idx 2) tabs */
         const pageContent = document.getElementById('pageContent');
         if (idx === 1 || idx === 2) {
           pageContent.classList.add('wide-layout');
@@ -834,7 +833,6 @@
           pageContent.classList.remove('wide-layout');
         }
 
-        /* Scroll SimpleBar back to top on page switch */
         const sb = SimpleBar.instances.get(document.getElementById('scrollArea'));
         if (sb) sb.getScrollElement().scrollTop = 0;
 
