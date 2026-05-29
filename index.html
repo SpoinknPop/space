@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ᯓ★</title>
-  <link rel="icon" type="image/png" href="icons/your_photo.png" />
+  <link class="portfolio-icon" rel="icon" type="image/png" href="icons/your_photo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -441,6 +441,9 @@
     .btn-github   { background-color: #9333ea; background-image: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%); }
     .btn-roblox   { background-color: #000000; background-image: linear-gradient(135deg, #000000 0%, #444444 100%); }
     .btn-passportdex { background-color: #4b4d62; background-image: linear-gradient(135deg, #bbbdcf 0%, #1a1a1e 100%); color: #ffffff !important; }
+    
+    /* Clean, premium Google color gradient finishing with Blue at the end */
+    .btn-gmail    { background-color: #4285F4; background-image: linear-gradient(135deg, #ea4335 0%, #fbbc05 35%, #34a853 70%, #4285f4 100%); }
 
     .btn-label { display: flex; align-items: center; gap: 14px; z-index: 2; }
     .btn-arrow  { opacity: 0.7; font-size: 0.8rem; z-index: 2; display: flex; align-items: center; }
@@ -570,7 +573,18 @@
     let particles = [];
     let mouse = { x: -1000, y: -1000 };
 
-    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    function resizeCanvas() { 
+      canvas.width = window.innerWidth; 
+      canvas.height = window.innerHeight; 
+      
+      // Redistribute particles across the updated window size to prevent top-left/corner clumping
+      if (particles.length > 0) {
+        particles.forEach(p => {
+          p.x = Math.random() * canvas.width;
+          p.y = Math.random() * canvas.height;
+        });
+      }
+    }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
     window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
@@ -616,6 +630,10 @@
     }
 
     for (let i = 0; i < 60; i++) particles.push(new Particle());
+    
+    // Explicitly redistribute particles correctly once window resources are fully ready
+    resizeCanvas();
+
     function animateParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach(p => { p.update(); p.draw(); });
@@ -669,8 +687,14 @@
                 <span id="clock-time">00:00:00 AM</span>
               </div>
             </div>
-            <!-- Restored original PNG social links layout -->
+            <!-- Restored original PNG social links layout + newly integrated Gmail Contact button with PNG icon -->
             <div class="social-column">
+              <a href="mailto:credland09@gmail.com" target="_blank" class="social-btn btn-gmail">
+                <span class="btn-label">
+                  <img src="icons/gmail.png" class="btn-icon-png" alt="Gmail"> Email
+                </span>
+                <span class="btn-arrow"><i data-lucide="external-link"></i></span>
+              </a>
               <a href="#" target="_blank" class="social-btn btn-spotify">
                 <span class="btn-label"><img src="icons/spotify.png" class="btn-icon-png" alt="Spotify"> Spotify</span>
                 <span class="btn-arrow"><i data-lucide="external-link"></i></span>
@@ -697,16 +721,6 @@
               </a>
             </div>
           </aside>
-        </div>
-
-        <!-- Contact Blurb positioned below both columns, beautifully centered -->
-        <div class="contact-blurb" style="margin-top: 3rem; padding: 24px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 20px; backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; width: 100%;">
-          <h4 style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: #fff; display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
-            <i data-lucide="mail" style="width: 20px; height: 20px; color: rgba(255, 255, 255, 0.85);"></i> Contact Me
-          </h4>
-          <a href="mailto:helloworldeleven@gmail.com" class="project-link-btn" style="padding: 10px 24px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 10px; margin-top: 6px;">
-            <i data-lucide="mail" style="width: 16px; height: 16px;"></i> helloworldeleven@gmail.com
-          </a>
         </div>
       `,
       1: `
