@@ -560,6 +560,7 @@
       <div class="nav-indicator" id="navIndicator"></div>
       <button class="nav-btn active" data-idx="0"><i data-lucide="user"></i><span>About</span></button>
       <button class="nav-btn" data-idx="1"><i data-lucide="layout"></i><span>Projects</span></button>
+      <button class="nav-btn" data-idx="2"><i data-lucide="book-open"></i><span>Assignments</span></button>
     </nav>
   </div>
 
@@ -721,25 +722,6 @@
             </div>
           </div>
 
-          <!-- PikaMaze Project -->
-          <div class="project-card">
-            <div class="project-banner-container" style="aspect-ratio: 505 / 377;">
-              <div class="project-banner-fallback" style="background: linear-gradient(135deg, #fcd34d 0%, #b45309 100%); color: rgba(255, 255, 255, 0.45);">PIKAMAZE</div>
-              <img src="icons/pikamaze_banner.webp" class="project-banner-img" alt="PikaMaze Banner" onerror="this.style.opacity='0'">
-            </div>
-            <div class="project-content">
-              <span class="project-meta">High School Project • Game Development</span>
-              <div class="project-header"><h3>PikaMaze</h3></div>
-              <p class="about-text" style="font-size:1rem;color:rgba(255,255,255,0.7);">
-                This gamemaker game follows a little Eevee who sees a sick Pikachu and makes her way through a complex, dangerous maze to find a potion and save Pikachu, all while avoiding Team Rocket lurking in the shadows.
-              </p>
-              <div class="project-links">
-                <a href="#" target="_blank" class="project-link-btn"><i data-lucide="gamepad-2"></i> Play Game</a>
-                <a href="#" target="_blank" class="project-link-btn"><i data-lucide="github"></i> Source Code</a>
-              </div>
-            </div>
-          </div>
-
           <!-- Chromatypology Project -->
           <div class="project-card">
             <div class="project-banner-container" style="aspect-ratio: 1000 / 1000;">
@@ -760,6 +742,28 @@
             </div>
           </div>
         </div>
+      `,
+      2: `
+        <div class="content-grid projects-grid-layout">
+          <!-- PikaMaze Project -->
+          <div class="project-card">
+            <div class="project-banner-container" style="aspect-ratio: 505 / 377;">
+              <div class="project-banner-fallback" style="background: linear-gradient(135deg, #fcd34d 0%, #b45309 100%); color: rgba(255, 255, 255, 0.45);">PIKAMAZE</div>
+              <img src="icons/pikamaze_banner.webp" class="project-banner-img" alt="PikaMaze Banner" onerror="this.style.opacity='0'">
+            </div>
+            <div class="project-content">
+              <span class="project-meta">High School Project • Game Development</span>
+              <div class="project-header"><h3>PikaMaze</h3></div>
+              <p class="about-text" style="font-size:1rem;color:rgba(255,255,255,0.7);">
+                This gamemaker game follows a little Eevee who sees a sick Pikachu and makes her way through a complex, dangerous maze to find a potion and save Pikachu, all while avoiding Team Rocket lurking in the shadows.
+              </p>
+              <div class="project-links">
+                <a href="#" target="_blank" class="project-link-btn"><i data-lucide="gamepad-2"></i> Play Game</a>
+                <a href="#" target="_blank" class="project-link-btn"><i data-lucide="github"></i> Source Code</a>
+              </div>
+            </div>
+          </div>
+        </div>
       `
     };
 
@@ -772,7 +776,7 @@
     }
     setInterval(updateClock, 1000);
 
-    const pages = ['About Me', 'Featured Projects'];
+    const pages = ['About Me', 'Featured Projects', 'Assignments'];
     const btns = document.querySelectorAll('.nav-btn');
     const indicator = document.getElementById('navIndicator');
     const titleEl = document.getElementById('pageTitle');
@@ -793,9 +797,9 @@
         lucide.createIcons();
         if (idx === 0) updateClock();
 
-        /* Toggle wide layout class for Projects tab only */
+        /* Toggle wide layout class for Projects (idx 1) and Assignments (idx 2) tabs */
         const pageContent = document.getElementById('pageContent');
-        if (idx === 1) {
+        if (idx === 1 || idx === 2) {
           pageContent.classList.add('wide-layout');
         } else {
           pageContent.classList.remove('wide-layout');
