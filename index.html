@@ -109,6 +109,13 @@
       gap: 2rem;
       margin: 5vh auto 0;
       padding: 40px 0 160px 0;
+      transition: max-width 0.4s ease, width 0.4s ease;
+    }
+
+    /* Thinner margins / wider layout specifically on the projects tab */
+    .page-content.wide-layout {
+      max-width: 1200px;
+      width: 95%;
     }
 
     .hero-section {
@@ -512,6 +519,7 @@
       .content-grid { grid-template-columns: 1fr; gap: 2rem; }
       .projects-grid-layout { grid-template-columns: 1fr !important; gap: 2rem !important; }
       .page-content { padding: 40px 0 160px 0; margin-top: 0; width: 92%; }
+      .page-content.wide-layout { width: 96% !important; }
       .hero-flex-container { gap: 1rem; }
       .project-card.split-card { flex-direction: column; }
       .split-card .project-banner-container { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -531,7 +539,7 @@
 
   <!-- SimpleBar scroll wrapper -->
   <div id="scrollArea" data-simplebar data-simplebar-auto-hide="true">
-    <main class="page-content">
+    <main class="page-content" id="pageContent">
       <div class="hero-section">
         <div class="hero-flex-container">
           <div class="cosmic-icon-wrapper">
@@ -734,7 +742,7 @@
 
           <!-- Chromatypology Project -->
           <div class="project-card">
-            <div class="project-banner-container" style="aspect-ratio: 1000 / 1000;">
+            <div class="project-banner-container">
               <div class="project-banner-fallback" style="font-size:1.5rem">CHROMATYPOLOGY</div>
               <img src="icons/chromatypology.png" class="project-banner-img" alt="Chromatypology" onerror="this.style.opacity='0'">
             </div>
@@ -784,6 +792,14 @@
         contentContainer.innerHTML = contentData[idx];
         lucide.createIcons();
         if (idx === 0) updateClock();
+
+        /* Toggle wide layout class for Projects tab only */
+        const pageContent = document.getElementById('pageContent');
+        if (idx === 1) {
+          pageContent.classList.add('wide-layout');
+        } else {
+          pageContent.classList.remove('wide-layout');
+        }
 
         /* Scroll SimpleBar back to top on page switch */
         const sb = SimpleBar.instances.get(document.getElementById('scrollArea'));
