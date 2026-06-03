@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'TT Travels Next';
+  src: url('TT_Travels_Next_Trial_Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 :root {
   --glass-bg:      rgba(255,255,255,0.08);
   --glass-border:  rgba(255,255,255,0.15);
@@ -168,7 +175,7 @@ body::before {
 }
 
 .page-title {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'TT Travels Next', serif;
   font-size: clamp(2.3rem, 7.5vw, 4.5rem);
   color: rgba(255,255,255,0.95);
   line-height: 1.1;
@@ -303,7 +310,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'DM Serif Display', serif;
+  font-family: 'TT Travels Next', serif;
   font-size: 3rem;
   color: rgba(255, 255, 255, 0.15);
   background: linear-gradient(135deg, #2b1f5c 0%, #150e2b 100%);
@@ -342,7 +349,7 @@ body::before {
 }
 
 .project-card h3 {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'TT Travels Next', serif;
   font-size: 1.8rem;
   color: white;
 }
