@@ -140,6 +140,9 @@
     }
     requestAnimationFrame(animBg);
 
+    const ASSIGNMENT_PASSWORD = "CRedland_SGD";
+    let assignmentsUnlocked = false;
+    
     const contentData = {
       0: `
         <!-- Main grid containing left column (Typology list) & right column (Clock + Social Links) -->
@@ -352,6 +355,19 @@
           </div>
         </div>
       `
+      3: `
+        <div class="content-grid projects-grid-layout">
+          <div class="project-card">
+            <div class="project-content">
+              <span class="project-meta">Certification</span>
+              <h3>Unity Certified User</h3>
+              <p class="about-text">
+                Certification information goes here.
+              </p>
+            </div>
+          </div>
+        </div>
+        `
     };
 
     function updateClock() {
@@ -363,7 +379,12 @@
     }
     setInterval(updateClock, 1000);
 
-    const pages = ['About Me', 'Featured Projects', 'Assignments'];
+    const pages = [
+      'About Me',
+      'Featured Projects',
+      'Assignments',
+      'Certifications'
+    ];
     const btns = document.querySelectorAll('.nav-btn');
     const indicator = document.getElementById('navIndicator');
     const titleEl = document.getElementById('pageTitle');
@@ -374,18 +395,69 @@
       if (btn) { indicator.style.left = btn.offsetLeft + 'px'; indicator.style.width = btn.offsetWidth + 'px'; }
     }
 
+
+    function createLockedPage(content) {
+    return `
+      <div class="locked-page">
+        <div class="locked-content">
+          ${content}
+        </div>
+  
+        <div class="password-overlay">
+          <div class="password-box">
+            <h3>Protected Content</h3>
+            <p>Enter password to continue.</p>
+  
+            <input
+              id="passwordInput"
+              type="password"
+              placeholder="Password"
+            >
+  
+            <button onclick="unlockProtectedContent()">
+              Unlock
+            </button>
+  
+            <div class="password-error" id="passwordError"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  window.unlockProtectedContent = function () {
+    const input = document.getElementById("passwordInput");
+    const error = document.getElementById("passwordError");
+  
+    if (input.value === ASSIGNMENT_PASSWORD) {
+      assignmentsUnlocked = true;
+  
+      const activeIdx =
+        parseInt(document.querySelector(".nav-btn.active").dataset.idx);
+  
+      switchPage(activeIdx);
+    } else {
+      error.textContent = "Incorrect password.";
+    }
+  };
+    
     function switchPage(idx) {
       contentContainer.style.opacity = 0;
       contentContainer.style.transform = 'translateY(10px)';
       titleEl.style.opacity = 0;
       setTimeout(() => {
         titleEl.textContent = pages[idx];
-        contentContainer.innerHTML = contentData[idx];
+        if ((idx === 2 || idx === 3) && !assignmentsUnlocked) {
+          contentContainer.innerHTML =
+            createLockedPage(contentData[idx]);
+        } else {
+          contentContainer.innerHTML = contentData[idx];
+        }
         lucide.createIcons();
         if (idx === 0) updateClock();
 
         const pageContent = document.getElementById('pageContent');
-        if (idx === 1 || idx === 2) {
+        if (idx === 1 || idx === 2 || idx === 3) {
           pageContent.classList.add('wide-layout');
         } else {
           pageContent.classList.remove('wide-layout');
