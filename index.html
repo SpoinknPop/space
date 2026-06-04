@@ -137,9 +137,6 @@
     }
     requestAnimationFrame(animBg);
 
-    const ASSIGNMENT_PASSWORD = "CRedland_SGD";
-    let assignmentsUnlocked = false;
-    
     const contentData = {
       0: `
         <div class="content-grid">
@@ -394,43 +391,7 @@
       if (btn) { indicator.style.left = btn.offsetLeft + 'px'; indicator.style.width = btn.offsetWidth + 'px'; }
     }
 
-    function createLockedPage(content) {
-      return `
-        <div class="locked-page">
-          <div class="locked-content">
-            ${content}
-          </div>
-          <div class="password-sidebar">
-            <div class="password-box">
-              <h3>Protected Content</h3>
-              <p>Enter password to continue.</p>
-              <input
-                id="passwordInput"
-                type="password"
-                placeholder="Password"
-              >
-              <button onclick="unlockProtectedContent()">
-                Unlock
-              </button>
-              <div class="password-error" id="passwordError"></div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
   
-    window.unlockProtectedContent = function () {
-      const input = document.getElementById("passwordInput");
-      const error = document.getElementById("passwordError");
-  
-      if (input.value === ASSIGNMENT_PASSWORD) {
-        assignmentsUnlocked = true;
-        const activeIdx = parseInt(document.querySelector(".nav-btn.active").dataset.idx);
-        switchPage(activeIdx);
-      } else {
-        error.textContent = "Incorrect password.";
-      }
-    };
     
     function switchPage(idx) {
       contentContainer.style.opacity = 0;
@@ -438,11 +399,7 @@
       titleEl.style.opacity = 0;
       setTimeout(() => {
         titleEl.textContent = pages[idx];
-        if ((idx === 2 || idx === 3) && !assignmentsUnlocked) {
-          contentContainer.innerHTML = createLockedPage(contentData[idx]);
-        } else {
-          contentContainer.innerHTML = contentData[idx];
-        }
+        contentContainer.innerHTML = contentData[idx];
         lucide.createIcons();
         if (idx === 0) updateClock();
 
