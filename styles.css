@@ -19,17 +19,15 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow: hidden; /* body no longer scrolls — SimpleBar handles it */
+  overflow: hidden;
   font-family: 'DM Sans', sans-serif;
   cursor: default;
 }
 
 body {
-  background-color: #110c26; /* Deeper base tone to allow #385bbf blue to glow intensely */
+  background-color: #110c26;
   background-image:
-    /* Primary #385bbf blue emanating directly behind the circular avatar icon */
     radial-gradient(circle at 15% 15%, rgba(56, 91, 191, 0.85) 0%, rgba(56, 91, 191, 0.3) 35%, transparent 70%),
-    /* Dynamic fluid colorful background layers */
     radial-gradient(ellipse at var(--b1x) var(--b1y), #ff4db8 0%, transparent 55%),
     radial-gradient(ellipse at var(--b2x) var(--b2y), #ffe033 0%, transparent 45%),
     radial-gradient(ellipse at var(--b3x) var(--b3y), #33ff99 0%, transparent 50%),
@@ -59,7 +57,6 @@ body::before {
   pointer-events: none;
 }
 
-/* SimpleBar scroll container */
 #scrollArea {
   position: relative;
   z-index: 10;
@@ -67,7 +64,6 @@ body::before {
   height: 100vh;
 }
 
-/* Custom SimpleBar scrollbar styling */
 .simplebar-scrollbar::before {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 100px;
@@ -91,7 +87,6 @@ body::before {
   right: 1px;
 }
 
-/* Page content */
 .page-content {
   width: 90%;
   max-width: 1000px;
@@ -103,7 +98,6 @@ body::before {
   transition: max-width 0.4s ease, width 0.4s ease;
 }
 
-/* Thinner margins / wider layout specifically on the projects tab */
 .page-content.wide-layout {
   max-width: 1200px;
   width: 95%;
@@ -120,7 +114,6 @@ body::before {
   gap: 1.5rem;
 }
 
-/* Glowing Circular Icon and Space next to About Me */
 .cosmic-icon-wrapper {
   position: relative;
   width: clamp(65px, 11vw, 85px);
@@ -194,7 +187,6 @@ body::before {
   align-items: flex-start;
 }
 
-/* Projects Two-Column Grid Setup */
 .projects-grid-layout {
   grid-template-columns: repeat(2, 1fr) !important;
   gap: 2rem !important;
@@ -281,7 +273,7 @@ body::before {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin-bottom: 0; /* Grid layout manages spacing */
+  margin-bottom: 0;
 }
 
 .project-card:hover { transform: translateY(-5px); }
@@ -303,7 +295,6 @@ body::before {
   position: relative;
 }
 
-/* Dynamic Placeholder Fallbacks */
 .project-banner-fallback {
   position: absolute;
   inset: 0;
@@ -432,8 +423,6 @@ body::before {
 .btn-github   { background-color: #9333ea; background-image: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%); }
 .btn-roblox   { background-color: #000000; background-image: linear-gradient(135deg, #000000 0%, #444444 100%); }
 .btn-passportdex { background-color: #4b4d62; background-image: linear-gradient(135deg, #bbbdcf 0%, #1a1a1e 100%); color: #ffffff !important; }
-
-/* Clean, premium Google color gradient starting with a much stronger red phase and finishing with Blue */
 .btn-gmail { 
   background-color: #4285F4; 
   background-image: linear-gradient(135deg, #ea4335 0%, #ea4335 20%, #fbbc05 50%, #34a853 78%, #4285f4 100%); 
@@ -475,6 +464,7 @@ body::before {
   pointer-events: none; z-index: 0;
 }
 
+/* Password lock — overlay is fixed to the viewport, always centered */
 .locked-page {
   position: relative;
 }
@@ -486,12 +476,15 @@ body::before {
 }
 
 .password-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 20;
+  z-index: 50;
+  /* subtle backdrop so it reads clearly over the blurred content */
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(2px);
 }
 
 .password-box {
