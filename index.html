@@ -400,20 +400,20 @@
           <div class="locked-content">
             ${content}
           </div>
-        </div>
-        <div class="password-overlay">
-          <div class="password-box">
-            <h3>Protected Content</h3>
-            <p>Enter password to continue.</p>
-            <input
-              id="passwordInput"
-              type="password"
-              placeholder="Password"
-            >
-            <button onclick="unlockProtectedContent()">
-              Unlock
-            </button>
-            <div class="password-error" id="passwordError"></div>
+          <div class="password-sidebar">
+            <div class="password-box">
+              <h3>Protected Content</h3>
+              <p>Enter password to continue.</p>
+              <input
+                id="passwordInput"
+                type="password"
+                placeholder="Password"
+              >
+              <button onclick="unlockProtectedContent()">
+                Unlock
+              </button>
+              <div class="password-error" id="passwordError"></div>
+            </div>
           </div>
         </div>
       `;
