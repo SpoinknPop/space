@@ -56,7 +56,6 @@
       canvas.width = window.innerWidth; 
       canvas.height = window.innerHeight; 
       
-      // Redistribute particles across the updated window size to prevent top-left/corner clumping
       if (particles.length > 0) {
         particles.forEach(p => {
           p.x = Math.random() * canvas.width;
@@ -109,8 +108,6 @@
     }
 
     for (let i = 0; i < 60; i++) particles.push(new Particle());
-    
-    // Explicitly redistribute particles correctly once window resources are fully ready
     resizeCanvas();
 
     function animateParticles() {
@@ -145,14 +142,12 @@
     
     const contentData = {
       0: `
-        <!-- Main grid containing left column (Typology list) & right column (Clock + Social Links) -->
         <div class="content-grid">
           <section class="about-text">
             <p class="intro-para">
               ᯓ★ Hello! You can call me Ace or Spoink :D I'm currently studying game development and design. My interests include linguistics, crochet, typology, and I'm a superfan of Mitski :3
             </p>
             
-            <!-- Typology Header added here -->
             <h3 style="font-family: 'TT Travels Next', serif; font-size: 1.8rem; color: #fff; margin-top: 2rem; margin-bottom: 0.75rem;">Typology</h3>
             
             <table class="info-table">
@@ -173,7 +168,6 @@
                 <span id="clock-time">00:00:00 AM</span>
               </div>
             </div>
-            <!-- PNG social links layout + integrated Gmail Contact button with PNG icon -->
             <div class="social-column">
               <a href="mailto:credland09@gmail.com" target="_blank" class="social-btn btn-gmail">
                 <span class="btn-label">
@@ -211,7 +205,6 @@
       `,
       1: `
         <div class="content-grid projects-grid-layout">
-          <!-- Lumiscape Project -->
           <div class="project-card">
             <div class="project-banner-container" style="aspect-ratio: 16 / 9;">
               <div class="project-banner-fallback" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%); color: rgba(255,255,255,0.2); font-size:2.5rem; letter-spacing:0.15em;">LUMISCAPE</div>
@@ -230,7 +223,6 @@
             </div>
           </div>
 
-          <!-- Visceria Project -->
           <div class="project-card">
             <div class="project-banner-container">
               <div class="project-banner-fallback">VISCERIA</div>
@@ -251,7 +243,6 @@
             </div>
           </div>
 
-          <!-- Chromatypology Project -->
           <div class="project-card">
             <div class="project-banner-container" style="aspect-ratio: 1000 / 1000;">
               <div class="project-banner-fallback" style="font-size:1.5rem">CHROMATYPOLOGY</div>
@@ -274,7 +265,6 @@
       `,
       2: `
         <div class="content-grid projects-grid-layout">
-          <!-- PikaMaze Project -->
           <div class="project-card">
             <div class="project-banner-container" style="aspect-ratio: 505 / 377;">
               <div class="project-banner-fallback" style="background: linear-gradient(135deg, #fcd34d 0%, #b45309 100%); color: rgba(255, 255, 255, 0.45);">PIKAMAZE</div>
@@ -294,7 +284,6 @@
             </div>
           </div>
 
-          <!-- Retro Revival Project -->
           <div class="project-card">
             <div class="project-banner-container" style="aspect-ratio: 505 / 252;">
               <div class="project-banner-fallback" style="background: linear-gradient(135deg, #a78bfa 0%, #4c1d95 100%); color: rgba(255, 255, 255, 0.45);">RETRO REVIVAL</div>
@@ -314,7 +303,6 @@
             </div>
           </div>
 
-          <!-- Lottery Simulator Project (Based off image_d7692e.png) -->
           <div class="project-card">
             <div class="project-banner-container" style="aspect-ratio: 587 / 500;">
               <div class="project-banner-fallback" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: rgba(255, 255, 255, 0.45);">LOTTERY</div>
@@ -334,7 +322,6 @@
             </div>
           </div>
 
-          <!-- Battleship Console Project (Based off image_d706a3.png) -->
           <div class="project-card">
             <div class="project-banner-container" style="aspect-ratio: 16 / 9;">
               <div class="project-banner-fallback" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: rgba(255, 255, 255, 0.45);">BATTLESHIP</div>
@@ -358,12 +345,24 @@
       3: `
         <div class="content-grid projects-grid-layout">
           <div class="project-card">
+            <div class="project-banner-container" style="aspect-ratio: 4 / 3;">
+              <div class="project-banner-fallback" style="background: linear-gradient(135deg, #1a3a5c 0%, #0d2035 100%); color: rgba(255,255,255,0.2); font-size:2rem; letter-spacing:0.12em;">WRS</div>
+              <img src="icons/wrs.png" class="project-banner-img" alt="WRS Certification" onerror="this.style.opacity='0'">
+            </div>
             <div class="project-content">
               <span class="project-meta">Certification</span>
-              <h3>Unity Certified User</h3>
-              <p class="about-text">
-                Certification information goes here.
-              </p>
+              <div class="project-header"><h3>WRS</h3></div>
+            </div>
+          </div>
+
+          <div class="project-card">
+            <div class="project-banner-container" style="aspect-ratio: 4 / 3;">
+              <div class="project-banner-fallback" style="background: linear-gradient(135deg, #1c3a1a 0%, #0d200c 100%); color: rgba(255,255,255,0.2); font-size:2rem; letter-spacing:0.12em;">NOCTI</div>
+              <img src="icons/nocti.png" class="project-banner-img" alt="NOCTI Certification" onerror="this.style.opacity='0'">
+            </div>
+            <div class="project-content">
+              <span class="project-meta">Certification</span>
+              <div class="project-header"><h3>NOCTI</h3></div>
             </div>
           </div>
         </div>
@@ -395,51 +394,43 @@
       if (btn) { indicator.style.left = btn.offsetLeft + 'px'; indicator.style.width = btn.offsetWidth + 'px'; }
     }
 
-
     function createLockedPage(content) {
-    return `
-      <div class="locked-page">
-        <div class="locked-content">
-          ${content}
+      return `
+        <div class="locked-page">
+          <div class="locked-content">
+            ${content}
+          </div>
         </div>
-  
         <div class="password-overlay">
           <div class="password-box">
             <h3>Protected Content</h3>
             <p>Enter password to continue.</p>
-  
             <input
               id="passwordInput"
               type="password"
               placeholder="Password"
             >
-  
             <button onclick="unlockProtectedContent()">
               Unlock
             </button>
-  
             <div class="password-error" id="passwordError"></div>
           </div>
         </div>
-      </div>
-    `;
-  }
-  
-  window.unlockProtectedContent = function () {
-    const input = document.getElementById("passwordInput");
-    const error = document.getElementById("passwordError");
-  
-    if (input.value === ASSIGNMENT_PASSWORD) {
-      assignmentsUnlocked = true;
-  
-      const activeIdx =
-        parseInt(document.querySelector(".nav-btn.active").dataset.idx);
-  
-      switchPage(activeIdx);
-    } else {
-      error.textContent = "Incorrect password.";
+      `;
     }
-  };
+  
+    window.unlockProtectedContent = function () {
+      const input = document.getElementById("passwordInput");
+      const error = document.getElementById("passwordError");
+  
+      if (input.value === ASSIGNMENT_PASSWORD) {
+        assignmentsUnlocked = true;
+        const activeIdx = parseInt(document.querySelector(".nav-btn.active").dataset.idx);
+        switchPage(activeIdx);
+      } else {
+        error.textContent = "Incorrect password.";
+      }
+    };
     
     function switchPage(idx) {
       contentContainer.style.opacity = 0;
@@ -448,8 +439,7 @@
       setTimeout(() => {
         titleEl.textContent = pages[idx];
         if ((idx === 2 || idx === 3) && !assignmentsUnlocked) {
-          contentContainer.innerHTML =
-            createLockedPage(contentData[idx]);
+          contentContainer.innerHTML = createLockedPage(contentData[idx]);
         } else {
           contentContainer.innerHTML = contentData[idx];
         }
