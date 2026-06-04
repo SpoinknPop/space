@@ -464,35 +464,31 @@ body::before {
   pointer-events: none; z-index: 0;
 }
 
-/* Password lock — overlay is fixed to the viewport, always centered */
+/* Password lock — side-by-side layout */
 .locked-page {
-  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 2rem;
+  align-items: start;
 }
 
 .locked-page .locked-content {
-  filter: blur(18px);
+  filter: blur(10px);
   pointer-events: none;
   user-select: none;
+  opacity: 0.6;
 }
 
-.password-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  /* subtle backdrop so it reads clearly over the blurred content */
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(2px);
+.password-sidebar {
+  position: sticky;
+  top: 2rem;
 }
 
 .password-box {
-  width: min(420px, 90%);
   padding: 28px;
   border-radius: 24px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.13);
   backdrop-filter: blur(24px);
   text-align: center;
 }
@@ -506,6 +502,7 @@ body::before {
 .password-box p {
   color: rgba(255,255,255,0.65);
   margin-bottom: 16px;
+  font-size: 0.9rem;
 }
 
 .password-box input {
@@ -516,6 +513,12 @@ body::before {
   background: rgba(255,255,255,0.08);
   color: white;
   outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+}
+
+.password-box input::placeholder {
+  color: rgba(255,255,255,0.3);
 }
 
 .password-box button {
@@ -524,15 +527,31 @@ body::before {
   padding: 12px;
   border-radius: 14px;
   border: none;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.13);
   color: white;
   cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.password-box button:hover {
+  background: rgba(255,255,255,0.22);
 }
 
 .password-error {
   color: #ff8080;
   font-size: 0.85rem;
   margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .locked-page {
+    grid-template-columns: 1fr;
+  }
+  .password-sidebar {
+    position: static;
+  }
 }
 
 .nav-btn {
